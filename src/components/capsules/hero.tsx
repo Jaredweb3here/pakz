@@ -67,7 +67,7 @@ export function Hero({ onOpenCapsule, walletReady }: HeroProps) {
           <BlurFade delay={0.3}>
             <div className="mt-12 flex items-center justify-center gap-8 lg:justify-start">
               {[
-                { value: "18", label: "Tokenized stocks" },
+                { value: "14", label: "Tokenized stocks" },
                 { value: "5", label: "Curated packs" },
                 { value: "$500", label: "Jackpot seed" },
               ].map((stat) => (

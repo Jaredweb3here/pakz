@@ -37,6 +37,8 @@ export interface CapsuleType {
     accent: string;
   };
   rarityPreview: Rarity[];
+  /** Pack exists but can't open yet (stocks not tokenized / no liquidity) */
+  comingSoon?: boolean;
 }
 
 export interface Collection {

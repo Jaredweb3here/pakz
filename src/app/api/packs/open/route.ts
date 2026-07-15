@@ -28,6 +28,12 @@ export async function POST(request: Request) {
       { status: 404 }
     );
   }
+  if (capsule.comingSoon) {
+    return NextResponse.json(
+      { error: `${capsule.name} is not open for purchase yet` },
+      { status: 409 }
+    );
+  }
 
   const pull = pickRandomPull(capsule);
 

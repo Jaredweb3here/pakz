@@ -63,10 +63,19 @@ export function CapsuleCard({ capsule, index, onSelect }: CapsuleCardProps) {
           {/* Stage */}
           <button
             type="button"
-            onClick={() => onSelect(capsule)}
-            className="relative block w-full text-left"
+            onClick={() => !capsule.comingSoon && onSelect(capsule)}
+            aria-disabled={capsule.comingSoon}
+            className={cn(
+              "relative block w-full text-left",
+              capsule.comingSoon && "cursor-default"
+            )}
           >
             <div className="relative flex aspect-[4/4.4] items-center justify-center overflow-hidden">
+              {capsule.comingSoon && (
+                <span className="absolute top-5 left-5 z-20 rounded-full bg-black/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70 ring-1 ring-white/[0.12] backdrop-blur-md">
+                  Coming Soon
+                </span>
+              )}
               <div
                 aria-hidden
                 className="absolute inset-0"
@@ -126,7 +135,12 @@ export function CapsuleCard({ capsule, index, onSelect }: CapsuleCardProps) {
           {/* Info */}
           <div className="border-t border-white/[0.05] px-6 py-5">
             <div className="flex items-start justify-between gap-3">
-              <button type="button" onClick={() => onSelect(capsule)} className="text-left">
+              <button
+                type="button"
+                onClick={() => !capsule.comingSoon && onSelect(capsule)}
+                aria-disabled={capsule.comingSoon}
+                className={cn("text-left", capsule.comingSoon && "cursor-default")}
+              >
                 <h3 className="text-lg font-semibold tracking-tight text-white">{capsule.name}</h3>
                 <p className="mt-1 text-sm leading-snug text-white/40">{capsule.description}</p>
               </button>

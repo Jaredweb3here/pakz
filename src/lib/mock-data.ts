@@ -28,6 +28,8 @@ export const capsuleTypes: CapsuleType[] = [
     stocks: [t("aapl"), t("msft"), t("amzn"), t("meta"), t("tsla"), t("googl"), t("nvda")],
     artwork: { primary: "#0D0D0D", secondary: "#141414", accent: "#C8C8CE" },
     rarityPreview: ["rare", "epic", "legendary"],
+    // MSFT has no in-range USDG liquidity on-chain yet.
+    comingSoon: true,
   },
   {
     id: "dividend",
@@ -38,6 +40,8 @@ export const capsuleTypes: CapsuleType[] = [
     stocks: [t("jnj"), t("pg"), t("ko"), t("pep")],
     artwork: { primary: "#0F0F0F", secondary: "#161616", accent: "#D4AF37" },
     rarityPreview: ["common", "rare"],
+    // KO/PG/JNJ/PEP not tokenized on Robinhood Chain yet.
+    comingSoon: true,
   },
   {
     id: "healthcare",
@@ -48,14 +52,16 @@ export const capsuleTypes: CapsuleType[] = [
     stocks: [t("jnj"), t("pg"), t("pep")],
     artwork: { primary: "#0A0A0A", secondary: "#121212", accent: "#7CC4FF" },
     rarityPreview: ["common", "rare"],
+    // Healthcare names not tokenized on Robinhood Chain yet.
+    comingSoon: true,
   },
   {
     id: "future-tech",
     name: "Future Tech",
-    description: "Semiconductors, crypto-adjacent & growth",
+    description: "Semiconductors, space & growth",
     price: 11.99,
     assetCount: 4,
-    stocks: [t("nvda"), t("amd"), t("coin"), t("mu")],
+    stocks: [t("nvda"), t("amd"), t("spcx"), t("mu")],
     artwork: { primary: "#0B0B0B", secondary: "#151515", accent: "#A855F7" },
     rarityPreview: ["rare", "epic", "legendary"],
   },
@@ -108,7 +114,7 @@ export const collections: Collection[] = [
     id: "future-tech",
     name: "Future Tech",
     description: "Next-generation technology exposure",
-    stocks: ["NVDA", "AMD", "COIN", "MU"],
+    stocks: ["NVDA", "AMD", "SPCX", "MU"],
     owned: [],
     badgeEarned: false,
     bonusStockUsd: 6,

@@ -300,28 +300,48 @@ export function OpenCapsuleFlow({
                 per opening
               </p>
               <div className="mt-6 space-y-2">
-                {capsules.map((capsule) => (
-                  <button
-                    key={capsule.id}
-                    type="button"
-                    onClick={() => startOpening(capsule)}
-                    className="group flex w-full items-center gap-4 rounded-2xl bg-white/[0.03] px-4 py-3.5 transition-all hover:bg-white/[0.07]"
-                  >
-                    <MiniPack
-                      size="sm"
-                      accent={capsule.artwork.accent}
-                      artSrc={getCapsuleArtwork(capsule.id)}
-                      className="transition-transform group-hover:scale-105"
-                    />
-                    <div className="flex-1 text-left">
-                      <p className="text-sm font-semibold text-white">{capsule.name}</p>
-                      <p className="text-xs text-white/35">{capsule.assetCount} assets</p>
+                {capsules.map((capsule) =>
+                  capsule.comingSoon ? (
+                    <div
+                      key={capsule.id}
+                      className="flex w-full items-center gap-4 rounded-2xl bg-white/[0.02] px-4 py-3.5 opacity-60"
+                    >
+                      <MiniPack
+                        size="sm"
+                        accent={capsule.artwork.accent}
+                        artSrc={getCapsuleArtwork(capsule.id)}
+                      />
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-semibold text-white/70">{capsule.name}</p>
+                        <p className="text-xs text-white/35">{capsule.assetCount} assets</p>
+                      </div>
+                      <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                        Coming Soon
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold tabular-nums text-white/70">
-                      {formatCurrency(capsule.price)}
-                    </span>
-                  </button>
-                ))}
+                  ) : (
+                    <button
+                      key={capsule.id}
+                      type="button"
+                      onClick={() => startOpening(capsule)}
+                      className="group flex w-full items-center gap-4 rounded-2xl bg-white/[0.03] px-4 py-3.5 transition-all hover:bg-white/[0.07]"
+                    >
+                      <MiniPack
+                        size="sm"
+                        accent={capsule.artwork.accent}
+                        artSrc={getCapsuleArtwork(capsule.id)}
+                        className="transition-transform group-hover:scale-105"
+                      />
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-semibold text-white">{capsule.name}</p>
+                        <p className="text-xs text-white/35">{capsule.assetCount} assets</p>
+                      </div>
+                      <span className="text-sm font-semibold tabular-nums text-white/70">
+                        {formatCurrency(capsule.price)}
+                      </span>
+                    </button>
+                  )
+                )}
               </div>
             </motion.div>
           )}
