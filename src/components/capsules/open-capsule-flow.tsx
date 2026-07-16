@@ -90,6 +90,10 @@ export function OpenCapsuleFlow({
   const [settlement, setSettlement] = useState<SettlementResult | null>(null);
   const [openError, setOpenError] = useState<string | null>(null);
   const { address } = useAccount();
+  // The opening callback must always see the live wallet address — a stale
+  // closure here silently routed real users onto the demo path.
+  const addressRef = useRef(address);
+  addressRef.current = address;
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const crinkleRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -125,10 +129,14 @@ export function OpenCapsuleFlow({
       //  2. Server-side draw (demo mode when contracts aren't configured)
       // The reveal is gated on it — no company is ever shown before the
       // draw resolves.
-      const draw: Promise<SettlementResult> =
-        isOnchainPack(capsule.id) && address
-          ? openPackOnchain(capsule, address)
-          : fetch("/api/packs/open", {
+      const liveAddress = addressRef.current;
+      const draw: Promise<SettlementResult> = isOnchainPack(capsule.id)
+        ? liveAddress
+          ? openPackOnchain(capsule, liveAddress)
+          : Promise.reject(
+              new OpeningError("Wallet not detected — reconnect your wallet and try again.")
+            )
+        : fetch("/api/packs/open", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ packId: capsule.id }),
