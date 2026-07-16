@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
  * derive USD price from its sqrtPriceX96. No mock data.
  */
 
-const STATE_VIEW = "0xF3334192D15450CdD385c8b70E03f9A6bD9E673b" as const;
+const STATE_VIEW = "0xF3334192D15450CdD385c8B70e03f9A6bD9E673b" as const;
 const USDG = "0x5fc5360d0400a0fd4f2af552add042d716f1d168";
 
 const stateViewAbi = [
