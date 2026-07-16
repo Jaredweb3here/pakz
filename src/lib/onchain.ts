@@ -1,5 +1,6 @@
 import { parseEventLogs } from "viem";
 import {
+  getBalance,
   readContract,
   writeContract,
   waitForTransactionReceipt,
@@ -21,6 +22,11 @@ export const USDG_ADDRESS = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168" as cons
 export const PACKZ_ADDRESS = "0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777" as const;
 export const PACKZ_FLAP_URL =
   "https://flap.sh/robinhood/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777" as const;
+
+/** Canonical WETH on Robinhood Chain (deepest WETH/USDG v4 pool: 0.3%). */
+export const WETH_ADDRESS = "0x0bd7d308f8e1639fab988df18a8011f41eacad73" as const;
+/** UniswapV4NativeAdapter — permissionless swapExactInput, used to convert WETH → USDG. */
+export const ADAPTER_ADDRESS = "0x0b17df805a8c0921cb1b141f4515612028d8e4a7" as const;
 
 /** Frontend pack id -> on-chain pack id (set by DeployProtocol.s.sol). */
 export const ONCHAIN_PACK_IDS: Record<string, bigint> = {
@@ -56,6 +62,41 @@ export const erc20Abi = [
     name: "balanceOf",
     stateMutability: "view",
     inputs: [{ type: "address" }],
+    outputs: [{ type: "uint256" }],
+  },
+] as const;
+
+const wethAbi = [
+  ...erc20Abi,
+  {
+    type: "function",
+    name: "deposit",
+    stateMutability: "payable",
+    inputs: [],
+    outputs: [],
+  },
+] as const;
+
+const adapterAbi = [
+  {
+    type: "function",
+    name: "quote",
+    stateMutability: "view",
+    inputs: [{ type: "address" }, { type: "address" }, { type: "uint256" }],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "swapExactInput",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "inputToken", type: "address" },
+      { name: "outputToken", type: "address" },
+      { name: "amountIn", type: "uint256" },
+      { name: "minAmountOut", type: "uint256" },
+      { name: "recipient", type: "address" },
+      { name: "deadline", type: "uint256" },
+    ],
     outputs: [{ type: "uint256" }],
   },
 ] as const;
@@ -142,6 +183,93 @@ export class OpeningError extends Error {
 }
 
 /**
+ * Covers a USDG shortfall from the user's WETH via the protocol's own
+ * Uniswap v4 adapter (permissionless swap). Wraps native ETH into WETH
+ * first when the wallet holds ETH but not WETH.
+ */
+async function acquireUsdgWithWeth(account: `0x${string}`, shortfall: bigint): Promise<void> {
+  // Rate probe: how much USDG does 0.001 WETH buy right now?
+  const probeIn = 10n ** 15n;
+  let usdgPerProbe: bigint;
+  try {
+    usdgPerProbe = await readContract(wagmiConfig, {
+      address: ADAPTER_ADDRESS,
+      abi: adapterAbi,
+      functionName: "quote",
+      args: [WETH_ADDRESS, USDG_ADDRESS, probeIn],
+    });
+  } catch {
+    throw new OpeningError(
+      "Not enough USDG and the WETH conversion route is unavailable. Get USDG on Robinhood Chain, then try again."
+    );
+  }
+  if (usdgPerProbe === 0n) {
+    throw new OpeningError("WETH/USDG pool has no liquidity right now. Pay with USDG instead.");
+  }
+
+  // WETH needed for the shortfall, +3% headroom for fee drift/slippage.
+  const wethNeeded = (shortfall * probeIn * 103n) / (usdgPerProbe * 100n);
+
+  const wethBalance = await readContract(wagmiConfig, {
+    address: WETH_ADDRESS,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [account],
+  });
+
+  if (wethBalance < wethNeeded) {
+    // Try wrapping native ETH to make up the difference (keep a gas reserve).
+    const toWrap = wethNeeded - wethBalance;
+    const gasReserve = 5n * 10n ** 14n; // 0.0005 ETH
+    const { value: ethBalance } = await getBalance(wagmiConfig, { address: account });
+    if (ethBalance < toWrap + gasReserve) {
+      const needEth = Number(wethNeeded) / 1e18;
+      throw new OpeningError(
+        `Not enough funds: this pack needs ${(Number(shortfall) / 1e6).toFixed(2)} more USDG (≈${needEth.toFixed(5)} ETH/WETH). Top up USDG, WETH, or ETH on Robinhood Chain and try again.`
+      );
+    }
+    const wrapHash = await writeContract(wagmiConfig, {
+      address: WETH_ADDRESS,
+      abi: wethAbi,
+      functionName: "deposit",
+      value: toWrap,
+    });
+    await waitForTransactionReceipt(wagmiConfig, { hash: wrapHash });
+  }
+
+  // Approve + swap WETH -> USDG, delivered straight back to the user.
+  const wethAllowance = await readContract(wagmiConfig, {
+    address: WETH_ADDRESS,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [account, ADAPTER_ADDRESS],
+  });
+  if (wethAllowance < wethNeeded) {
+    const approveHash = await writeContract(wagmiConfig, {
+      address: WETH_ADDRESS,
+      abi: erc20Abi,
+      functionName: "approve",
+      args: [ADAPTER_ADDRESS, wethNeeded],
+    });
+    await waitForTransactionReceipt(wagmiConfig, { hash: approveHash });
+  }
+  const swapHash = await writeContract(wagmiConfig, {
+    address: ADAPTER_ADDRESS,
+    abi: adapterAbi,
+    functionName: "swapExactInput",
+    args: [
+      WETH_ADDRESS,
+      USDG_ADDRESS,
+      wethNeeded,
+      shortfall,
+      account,
+      BigInt(Math.floor(Date.now() / 1000) + 300),
+    ],
+  });
+  await waitForTransactionReceipt(wagmiConfig, { hash: swapHash });
+}
+
+/**
  * Full on-chain opening: approve USDG if needed, open the pack, nudge the
  * keeper, and poll until the opening settles into the user's wallet.
  */
@@ -156,7 +284,8 @@ export async function openPackOnchain(
 
   const price = BigInt(Math.round(capsule.price * 1e6));
 
-  // 0. Check the wallet actually holds enough USDG before prompting anything.
+  // 0. Check the wallet holds enough USDG; if not, cover the shortfall by
+  //    converting the user's WETH (wrapping native ETH first if needed).
   const usdgBalance = await readContract(wagmiConfig, {
     address: USDG_ADDRESS,
     abi: erc20Abi,
@@ -164,11 +293,7 @@ export async function openPackOnchain(
     args: [account],
   });
   if (usdgBalance < price) {
-    const have = (Number(usdgBalance) / 1e6).toFixed(2);
-    const need = (Number(price) / 1e6).toFixed(2);
-    throw new OpeningError(
-      `Not enough USDG: this pack costs ${need} USDG but your wallet holds ${have}. Get USDG on Robinhood Chain, then try again.`
-    );
+    await acquireUsdgWithWeth(account, price - usdgBalance);
   }
 
   // 1. Ensure USDG allowance.
