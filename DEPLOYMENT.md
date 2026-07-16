@@ -23,6 +23,13 @@ or run `contracts/script/fund-jackpot.sh <amount-usd> <key>`.
 Rewards wallet (Flap creator fees → jackpot top-ups, publicly auditable):
 [`0x6ee19E45EB7e72eb78225C930695cCf689ad065e`](https://robinhoodchain.blockscout.com/address/0x6ee19E45EB7e72eb78225C930695cCf689ad065e)
 
+**$PACKZ token** (launched on Flap, July 16 2026 — symbol `Packz`, 1B max supply):
+[`0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777`](https://robinhoodchain.blockscout.com/token/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777)
+· [Buy on Flap](https://flap.sh/robinhood/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777)
+
+Note: the Flap-deployed token has no transfer tax hooks; holder burn/discount
+benefits activate after DEX migration, once a PACKZ price source exists.
+
 ## 1. Frontend → Vercel + Namecheap DNS
 
 Deploy (from the repo root):

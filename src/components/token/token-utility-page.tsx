@@ -63,7 +63,7 @@ export function TokenUtilityPage() {
         <div className="mb-12">
           <p className="mb-3 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.25em] text-rh-green">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-rh-green" />
-            STOCKPACKZ Token
+            $PACKZ — Live on Robinhood Chain
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
             Hold more. Unlock more.
@@ -73,6 +73,24 @@ export function TokenUtilityPage() {
             deterministic, fully-funded benefits: discounts, bonus stock value, XP multipliers,
             and the Pack Printer. Never hidden odds changes.
           </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <a
+              href="https://flap.sh/robinhood/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 items-center rounded-full bg-rh-green px-6 text-sm font-semibold text-black transition-transform hover:scale-[1.03]"
+            >
+              Buy $PACKZ on Flap
+            </a>
+            <a
+              href="https://robinhoodchain.blockscout.com/token/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-white/[0.05] px-5 font-mono text-xs text-white/55 ring-1 ring-white/[0.08] transition-colors hover:bg-white/[0.08] hover:text-white/80"
+            >
+              0xaab3…7777
+            </a>
+          </div>
         </div>
 
         {/* Wallet status */}

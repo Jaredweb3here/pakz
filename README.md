@@ -156,6 +156,8 @@ Full details in [ROADMAP.md](ROADMAP.md).
 
 Follow [@stockpackz on X](https://x.com/stockpackz) for launch updates, pack drops, and jackpot announcements.
 
+**$PACKZ** is live on Robinhood Chain: [`0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777`](https://robinhoodchain.blockscout.com/token/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777) · [Buy on Flap](https://flap.sh/robinhood/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777)
+
 ## Contributing
 
 Contributions are welcome — read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, coding standards, and the PR checklist. All participants are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).

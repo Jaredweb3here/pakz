@@ -17,6 +17,11 @@ export const STOCKPACKZ_ADDRESS = process.env
   .NEXT_PUBLIC_STOCKPACKZ_ADDRESS as `0x${string}` | undefined;
 export const USDG_ADDRESS = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168" as const;
 
+/** $PACKZ — launched on Flap (bonding curve), Robinhood Chain. */
+export const PACKZ_ADDRESS = "0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777" as const;
+export const PACKZ_FLAP_URL =
+  "https://flap.sh/robinhood/0xaab3d2e25869dd9661e7a886b9a51c02ee6c7777" as const;
+
 /** Frontend pack id -> on-chain pack id (set by DeployProtocol.s.sol). */
 export const ONCHAIN_PACK_IDS: Record<string, bigint> = {
   ai: 1n,
