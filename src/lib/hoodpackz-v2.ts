@@ -9,9 +9,9 @@ import {
 import { robinhoodChain, wagmiConfig } from "./chain";
 import { erc20Abi, USDG_ADDRESS } from "./onchain";
 
-const configuredAddress = process.env.NEXT_PUBLIC_HOODPACKZ_V2_ADDRESS;
-const configuredCodeHash = process.env.NEXT_PUBLIC_HOODPACKZ_V2_CODEHASH;
-const configuredConfigHash = process.env.NEXT_PUBLIC_HOODPACKZ_V2_CONFIG_HASH;
+const configuredAddress = process.env.NEXT_PUBLIC_HOODPACKZ_V2_ADDRESS?.trim();
+const configuredCodeHash = process.env.NEXT_PUBLIC_HOODPACKZ_V2_CODEHASH?.trim();
+const configuredConfigHash = process.env.NEXT_PUBLIC_HOODPACKZ_V2_CONFIG_HASH?.trim();
 
 export const HOODPACKZ_V2_ADDRESS =
   configuredAddress && /^0x[0-9a-fA-F]{40}$/.test(configuredAddress)
@@ -30,7 +30,7 @@ export const HOODPACKZ_V2_CONFIG_HASH =
 
 export const HOODPACKZ_PACK_SALES_LIVE =
   Boolean(HOODPACKZ_V2_ADDRESS && HOODPACKZ_V2_CODEHASH && HOODPACKZ_V2_CONFIG_HASH) &&
-  process.env.NEXT_PUBLIC_HOODPACKZ_PACK_SALES_LIVE === "true";
+  process.env.NEXT_PUBLIC_HOODPACKZ_PACK_SALES_LIVE?.trim() === "true";
 
 export const HOODPACKZ_V2_RECOVERY_AVAILABLE = Boolean(
   HOODPACKZ_V2_ADDRESS && HOODPACKZ_V2_CODEHASH && HOODPACKZ_V2_CONFIG_HASH,

@@ -158,7 +158,7 @@ export default function HoodPackzPage() {
   const walletContext = useRef<{ address?: string; chainId?: number }>({});
   const openingContext = useRef<bigint | null>(null);
   const tier = TIERS[tierIndex];
-  const tokens = TOKEN_POOLS[tierIndex] ?? TOKEN_POOLS[poolIndex];
+  const tokens = TOKEN_POOLS[poolIndex];
   const isLive = Boolean(HOODPACKZ_V2_ADDRESS) && HOODPACKZ_PACK_SALES_LIVE;
   const canRecover = HOODPACKZ_V2_RECOVERY_AVAILABLE;
 
@@ -408,7 +408,10 @@ export default function HoodPackzPage() {
                 role="radio"
                 aria-checked={tierIndex === index}
                 className={tierIndex === index ? "active" : ""}
-                onClick={() => setTierIndex(index)}
+                onClick={() => {
+                  setTierIndex(index);
+                  setPoolIndex(index);
+                }}
               >
                 <span>{option.label}</span>
                 <strong>${option.price}</strong>
