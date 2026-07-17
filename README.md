@@ -2,7 +2,7 @@
 
 HoodPackz is a planned meme-token pack protocol for Robinhood Chain. Each pack will deliver three different admitted meme tokens using bonded 4-of-7 threshold BLS randomness.
 
-> **Current status: V2 preview.** The bonded randomness contracts and frontend preview are implemented. The HoodPackz pack core, asset registry, inventory vault, production BLS verifier, and mainnet deployment do not exist yet. The application cannot approve tokens or move user funds.
+> **Current status: V2 pre-launch.** The bonded randomness contracts, pre-funded pack core, deployment script, tests, and wallet transaction flow are implemented. Production BLS infrastructure, funded mainnet deployment, external audit, and legal approval remain launch blockers. Pack sales stay disabled by default.
 
 [![Contracts](https://img.shields.io/github/actions/workflow/status/Jaredweb3here/hoodpackz/contracts.yml?branch=main&label=contracts&style=flat-square)](https://github.com/Jaredweb3here/hoodpackz/actions/workflows/contracts.yml)
 [![Frontend](https://img.shields.io/github/actions/workflow/status/Jaredweb3here/hoodpackz/frontend.yml?branch=main&label=frontend&style=flat-square)](https://github.com/Jaredweb3here/hoodpackz/actions/workflows/frontend.yml)
@@ -14,14 +14,15 @@ HoodPackz is a planned meme-token pack protocol for Robinhood Chain. Each pack w
 | Property | V2 specification |
 | --- | --- |
 | Network | Robinhood Chain mainnet, chain ID `4663` |
-| Payment | USDG or WETH |
+| Payment | USDG |
 | Pack tiers | `5`, `15`, and `50` USDG |
 | Pack contents | Three different admitted meme tokens |
-| Economics | 80% prize EV, 10% USDG jackpot, 10% protocol fee |
+| Economics | 80% inventory funding, 10% USDG jackpot, 10% protocol fee |
 | Randomness | Bonded 4-of-7 threshold BLS |
 | Exposure | Capped by slashable quorum collateral |
 
-The frontend intentionally keeps opening disabled until a HoodPackz V2 core address and production ABI are configured.
+The frontend keeps opening disabled until a HoodPackz V2 address, deployment-specific runtime bytecode hash, constructor configuration hash, and explicit sales flag are configured. It verifies both hashes, USDG, tier price, and onchain pause state before requesting an allowance.
+Disabling new sales does not disable recovery: configured deployments remain available for prize claims, jackpot claims, and cancelled-round refunds.
 
 ## Verified preview assets
 
@@ -47,27 +48,30 @@ The contracts and ERC-20 metadata are real. Their inclusion remains preview-only
 - Exposure capacity bounded by the four smallest available operator bonds.
 - Retryable delivery separated from immutable randomness finalization.
 - Fail-closed legacy randomness and zero-exposure request paths.
-- Responsive HoodPackz pack preview with wallet/network controls.
+- Pre-funded seven-asset V2 core with three unique weighted draws.
+- Claim-based prize and jackpot delivery, so token transfer failures cannot revert beacon delivery.
+- Explicit prize-value and per-tier jackpot exposure caps.
+- Paused-by-default launch control and deployment-specific frontend attestation.
+- Responsive HoodPackz pack interface with direct wallet/network controls.
 - Disabled state-changing HTTP routes until V2 deployment.
 
-The Foundry suite currently contains 89 passing tests. Fork suites skip automatically outside chain ID `4663`.
+The Foundry suite covers the legacy contracts, bonded beacon, and V2 core. Fork suites skip automatically outside chain ID `4663`.
 
 ## Not implemented
 
 - Production EIP-2537 BLS verifier and cross-implementation vectors.
 - DKG ceremony and seven independent production operators.
 - Meme-token admission policy implementation and asset registry.
-- Pack registry, pre-funded inventory vault, pack core, jackpot, and WETH router.
+- Production asset admission, inventory funding, and WETH payment routing.
 - Production deployment, external audit, and legal approval.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    U[User wallet] -->|preview only| FE[Next.js frontend]
-    FE -. disabled until deployment .-> CORE[HoodPackz V2 core]
-    CORE --> REG[Asset and pack registries]
-    CORE --> INV[Pre-funded inventory vault]
+    U[User wallet] --> FE[Next.js frontend]
+    FE -->|attested direct transaction| CORE[HoodPackz V2 core]
+    CORE --> INV[Pre-funded inventory]
     CORE --> JP[USDG jackpot]
     CORE --> BEACON[ThresholdRandomBeacon]
     BEACON --> OPS[4 of 7 bonded operators]
@@ -102,7 +106,7 @@ Mainnet opening stays disabled until all of the following are complete:
 2. Production EIP-2537 verifier review.
 3. Independent operator selection, DKG, share custody, and bond sizing.
 4. Asset admission and liquidity tests.
-5. HoodPackz core, vault, registry, router, and invariant tests.
+5. Inventory valuation approval, full invariant/fork coverage, and deployment rehearsal.
 6. Safe/timelock administration and deployment rehearsal.
 7. External security audit and legal approval.
 

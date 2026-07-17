@@ -2,6 +2,34 @@
 
 Launch-day runbook: frontend on a custom domain, then the PACKZ token on Uniswap v4 — **without seeding liquidity**.
 
+## HoodPackz V2 pre-launch
+
+`DeployHoodPackzV2.s.sol` deploys the seven-asset core against an existing production threshold beacon. The core is paused by default. Do not unpause it in the deployment transaction.
+
+Required server-side deployment inputs:
+
+- `DEPLOYER_PK`, `ADMIN`, `INVENTORY_TREASURY`, `PROTOCOL_TREASURY`, and `THRESHOLD_BEACON`.
+- `REWARD_<TOKEN>_<CORNER|BLOCK|CITY>` for all seven tokens and three tiers, in token base units.
+- `PRIZE_VALUE_CAP_<CORNER|BLOCK|CITY>` for conservative maximum three-prize values, in USDG base units.
+- `JACKPOT_STAKE_CAP_<CORNER|BLOCK|CITY>` for the maximum jackpot amount assigned to one opening, in USDG base units.
+- Optional `WEIGHT_<TOKEN>` values. Each must fit in `uint32`.
+
+Deployment order:
+
+1. Deploy and verify the production EIP-2537 verifier and bonded 4-of-7 beacon.
+2. Run `DeployHoodPackzV2.s.sol`; confirm the beacon granted `CONSUMER_ROLE` to the new core.
+3. Verify the core source and immutable constructor configuration on Blockscout.
+4. Fund every asset reserve and test exact transfers for every configured reward.
+5. Record the deployment-specific runtime bytecode hash with `cast code <CORE> --rpc-url <RPC> | cast keccak` and read `deploymentConfigHash()` from the verified core.
+6. Configure `NEXT_PUBLIC_HOODPACKZ_V2_ADDRESS`, `NEXT_PUBLIC_HOODPACKZ_V2_CODEHASH`, `NEXT_PUBLIC_HOODPACKZ_V2_CONFIG_HASH`, and `NEXT_PUBLIC_HOODPACKZ_PACK_SALES_LIVE=false`.
+7. Complete audit, valuation, operator, legal, and launch checks.
+8. Unpause the core from the admin safe, then set `NEXT_PUBLIC_HOODPACKZ_PACK_SALES_LIVE=true`.
+
+The browser verifies runtime bytecode, constructor configuration commitment, `usdg()`, `packPrice(tier)`, and `openingsPaused()` before requesting USDG approval. A frontend flag never overrides the contract pause.
+The sales flag gates only new openings. Keep the address and both attestation hashes configured so existing users can still claim prizes, claim jackpots, and refund cancelled rounds during a sales pause.
+
+The deployments below are legacy StockPackz infrastructure and are not valid HoodPackz V2 core or beacon addresses.
+
 ## Live deployment — Robinhood Chain mainnet (4663)
 
 Deployed and verified July 16, 2026:

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   ArrowUpRight,
@@ -21,6 +21,19 @@ import {
 } from "lucide-react";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { robinhoodChain } from "@/lib/chain";
+import {
+  HOODPACKZ_PACK_SALES_LIVE,
+  HOODPACKZ_V2_ADDRESS,
+  HOODPACKZ_V2_RECOVERY_AVAILABLE,
+  claimHoodPackzJackpot,
+  claimHoodPackzPrize,
+  formatOpeningAmount,
+  readHoodPackzOpening,
+  refundHoodPackzOpening,
+  submitHoodPackzOpening,
+  type HoodPackzOpening,
+  type OpeningSubmission,
+} from "@/lib/hoodpackz-v2";
 import { HOODPACKZ_TOKENS, tokenExplorerUrl } from "@/lib/hoodpackz-tokens";
 import { HoodPackzBrand } from "@/components/brand/hoodpackz-brand";
 
@@ -38,6 +51,37 @@ const TOKEN_POOLS = [
 
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+function parseOpeningIds(value: string | null): bigint[] {
+  if (!value) return [];
+  const values = /^\d+$/.test(value) ? [value] : (() => {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  })();
+  return values.filter((item): item is string => typeof item === "string" && /^\d+$/.test(item)).map(BigInt);
+}
+
+function loadOpeningIds(storage: Storage, account: `0x${string}`): bigint[] {
+  const accountKey = account.toLowerCase();
+  const legacyKey = `hoodpackz-opening:${accountKey}`;
+  const markerPrefix = `${legacyKey}:`;
+  const ids = new Set(parseOpeningIds(storage.getItem(legacyKey)).map(String));
+  for (let index = 0; index < storage.length; index++) {
+    const key = storage.key(index);
+    const openingId = key?.startsWith(markerPrefix) ? key.slice(markerPrefix.length) : "";
+    if (/^\d+$/.test(openingId)) ids.add(openingId);
+  }
+  return [...ids].map(BigInt).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+}
+
+function persistOpeningId(storage: Storage, account: `0x${string}`, openingId: bigint): bigint[] {
+  storage.setItem(`hoodpackz-opening:${account.toLowerCase()}:${openingId.toString()}`, openingId.toString());
+  return loadOpeningIds(storage, account);
 }
 
 function HoodWalletButton() {
@@ -99,14 +143,173 @@ function HoodWalletButton() {
 }
 
 export default function HoodPackzPage() {
+  const { address, isConnected, chainId } = useAccount();
+  const { connect, connectors, isPending: connecting } = useConnect();
+  const { switchChain, isPending: switching } = useSwitchChain();
   const [tierIndex, setTierIndex] = useState(1);
   const [poolIndex, setPoolIndex] = useState(0);
+  const [openingState, setOpeningState] = useState<"idle" | "approving" | "submitting">("idle");
+  const [claiming, setClaiming] = useState<string | null>(null);
+  const [openingError, setOpeningError] = useState<string | null>(null);
+  const [submission, setSubmission] = useState<OpeningSubmission | null>(null);
+  const [trackedOpeningIds, setTrackedOpeningIds] = useState<bigint[]>([]);
+  const [trackedOpeningId, setTrackedOpeningId] = useState<bigint | null>(null);
+  const [opening, setOpening] = useState<HoodPackzOpening | null>(null);
+  const walletContext = useRef<{ address?: string; chainId?: number }>({});
+  const openingContext = useRef<bigint | null>(null);
   const tier = TIERS[tierIndex];
   const tokens = TOKEN_POOLS[poolIndex];
+  const isLive = Boolean(HOODPACKZ_V2_ADDRESS) && HOODPACKZ_PACK_SALES_LIVE;
+  const canRecover = HOODPACKZ_V2_RECOVERY_AVAILABLE;
+
+  function walletMatches(expectedAddress: `0x${string}`) {
+    return walletContext.current.address === expectedAddress.toLowerCase();
+  }
+
+  useEffect(() => {
+    walletContext.current = { address: address?.toLowerCase(), chainId };
+  }, [address, chainId]);
+
+  useEffect(() => {
+    openingContext.current = trackedOpeningId;
+  }, [trackedOpeningId]);
+
+  useEffect(() => {
+    const savedIds = canRecover && address ? loadOpeningIds(window.localStorage, address) : [];
+    const timer = window.setTimeout(() => {
+      setOpening(null);
+      setSubmission(null);
+      setOpeningError(null);
+      setClaiming(null);
+      setOpeningState("idle");
+      setTrackedOpeningIds(savedIds);
+      const latestOpeningId = savedIds.at(-1) ?? null;
+      openingContext.current = latestOpeningId;
+      setTrackedOpeningId(latestOpeningId);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [address, canRecover]);
+
+  useEffect(() => {
+    if (!canRecover || !address || trackedOpeningId === null) return;
+    let active = true;
+    const refresh = async () => {
+      try {
+        const result = await readHoodPackzOpening(trackedOpeningId, address);
+        if (active) setOpening(result);
+      } catch (error) {
+        if (active) setOpeningError(error instanceof Error ? error.message : "Could not load opening.");
+      }
+    };
+    void refresh();
+    const timer = window.setInterval(refresh, 10_000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [address, canRecover, trackedOpeningId]);
 
   function reshufflePreview() {
     setPoolIndex((current) => (current + 1) % TOKEN_POOLS.length);
   }
+
+  async function openSelectedPack() {
+    let submittedOpeningId: bigint | null = null;
+    setOpeningError(null);
+    setSubmission(null);
+
+    if (!isLive) return;
+    if (!isConnected || !address) {
+      if (connectors[0]) connect({ connector: connectors[0] });
+      return;
+    }
+    if (chainId !== robinhoodChain.id) {
+      switchChain({ chainId: robinhoodChain.id });
+      return;
+    }
+
+    try {
+      setOpeningState("submitting");
+      const result = await submitHoodPackzOpening(tierIndex, tier.price, address, () => {
+        if (walletMatches(address)) setOpeningState("approving");
+      });
+      submittedOpeningId = result.openingId;
+      const nextIds = persistOpeningId(window.localStorage, address, result.openingId);
+      if (!walletMatches(address)) return;
+      setSubmission(result);
+      setTrackedOpeningIds(nextIds);
+      openingContext.current = result.openingId;
+      setTrackedOpeningId(result.openingId);
+      const resultOpening = await readHoodPackzOpening(result.openingId, address);
+      if (walletMatches(address) && openingContext.current === result.openingId) setOpening(resultOpening);
+    } catch (error) {
+      if (
+        address &&
+        (!walletMatches(address) || (submittedOpeningId !== null && openingContext.current !== submittedOpeningId))
+      ) return;
+      const message = error instanceof Error ? error.message : "Opening transaction failed.";
+      setOpeningError(
+        /user rejected|user denied/i.test(message) ? "Transaction cancelled in your wallet." : message,
+      );
+    } finally {
+      if (address && walletMatches(address)) setOpeningState("idle");
+    }
+  }
+
+  async function refreshOpening() {
+    if (!address || trackedOpeningId === null) return;
+    const refreshOpeningId = trackedOpeningId;
+    setClaiming("refresh");
+    setOpeningError(null);
+    try {
+      const result = await readHoodPackzOpening(refreshOpeningId, address);
+      if (walletMatches(address) && openingContext.current === refreshOpeningId) setOpening(result);
+    } catch (error) {
+      if (!walletMatches(address) || openingContext.current !== refreshOpeningId) return;
+      setOpeningError(error instanceof Error ? error.message : "Could not load opening.");
+    } finally {
+      if (walletMatches(address) && openingContext.current === refreshOpeningId) setClaiming(null);
+    }
+  }
+
+  async function runOpeningAction(label: string, action: () => Promise<unknown>) {
+    const actionAccount = address;
+    const actionOpeningId = trackedOpeningId;
+    setClaiming(label);
+    setOpeningError(null);
+    try {
+      await action();
+      if (actionAccount && actionOpeningId !== null && walletMatches(actionAccount)) {
+        const result = await readHoodPackzOpening(actionOpeningId, actionAccount);
+        if (walletMatches(actionAccount) && openingContext.current === actionOpeningId) setOpening(result);
+      }
+    } catch (error) {
+      if (
+        actionAccount &&
+        (!walletMatches(actionAccount) || openingContext.current !== actionOpeningId)
+      ) return;
+      const message = error instanceof Error ? error.message : "Transaction failed.";
+      setOpeningError(/user rejected|user denied/i.test(message) ? "Transaction cancelled in your wallet." : message);
+    } finally {
+      if (actionAccount && walletMatches(actionAccount) && openingContext.current === actionOpeningId) setClaiming(null);
+    }
+  }
+
+  const actionLabel = !isLive
+    ? "LAUNCHING SOON"
+    : !isConnected
+      ? connecting
+        ? "CONNECTING WALLET"
+        : "CONNECT WALLET"
+      : chainId !== robinhoodChain.id
+        ? switching
+          ? "SWITCHING NETWORK"
+          : "SWITCH TO ROBINHOOD CHAIN"
+        : openingState === "approving"
+          ? "APPROVE USDG IN WALLET"
+          : openingState === "submitting"
+            ? "CONFIRM PACK OPENING"
+            : `OPEN ${tier.name.toUpperCase()} PACK`;
 
   return (
     <main id="top" className="hp-shell">
@@ -125,7 +328,7 @@ export default function HoodPackzPage() {
         <div className="hp-intro">
           <div className="hp-kicker">
             <span>PACK OPENING DESK / RHC 4663</span>
-            <span className="hp-live"><i /> PREVIEW MODE</span>
+            <span className={isLive ? "hp-live" : "hp-launching"}><i /> {isLive ? "LIVE" : "LAUNCHING"}</span>
           </div>
           <h1 id="pack-heading">
             THREE TOKENS.<br />ONE <span>SEALED DRAW.</span>
@@ -152,7 +355,10 @@ export default function HoodPackzPage() {
           <div className={`hp-drop-ticket hp-drop-ticket-${tierIndex}`}>
             <div className="hp-ticket-head">
               <span>HOODPACKZ / DROP 001</span>
-              <span className="hp-ticket-lock"><LockKeyhole size={12} /> NOT LIVE</span>
+              <span className={isLive ? "hp-ticket-live" : "hp-ticket-lock"}>
+                {isLive ? <Radio size={12} /> : <LockKeyhole size={12} />}
+                {isLive ? "LIVE" : "LAUNCHING"}
+              </span>
             </div>
             <div className="hp-ticket-price">
               <span>{tier.name} pack</span>
@@ -243,13 +449,125 @@ export default function HoodPackzPage() {
             <strong>{tier.price}.00 <small>USDG</small></strong>
           </div>
 
-          <button type="button" className="hp-locked-action" disabled>
-            <LockKeyhole size={17} /> OPENING AFTER V2 DEPLOYMENT
+          <button
+            type="button"
+            className={isLive ? "hp-open-action" : "hp-locked-action"}
+            disabled={!isLive || openingState !== "idle" || connecting || switching}
+            onClick={openSelectedPack}
+          >
+            {isLive ? <Zap size={17} /> : <LockKeyhole size={17} />}
+            {actionLabel}
           </button>
           <p className="hp-action-note">
-            Preview only. This interface cannot approve tokens or move funds until the audited
-            HoodPackz V2 core address is configured.
+            {submission ? (
+              <>
+                OPENING #{submission.openingId.toString()} QUEUED.{" "}
+                <a
+                  href={`${robinhoodChain.blockExplorers.default.url}/tx/${submission.hash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  VIEW TRANSACTION <ExternalLink size={9} />
+                </a>
+              </>
+            ) : openingError ? (
+              <span className="hp-action-error">{openingError}</span>
+            ) : isLive ? (
+              "Payment is submitted from your wallet. Three funded token rewards settle after the beacon finalizes."
+            ) : (
+              "PACK SALES OPEN WHEN RESERVES AND THE RANDOMNESS NETWORK ARE LIVE."
+            )}
           </p>
+
+          {canRecover && address && trackedOpeningId !== null && (
+            <div className="hp-opening-drawer">
+              <div className="hp-opening-drawer-head">
+                <select
+                  aria-label="Tracked opening"
+                  value={trackedOpeningId.toString()}
+                  onChange={(event) => {
+                    const nextOpeningId = BigInt(event.target.value);
+                    setOpening(null);
+                    setOpeningError(null);
+                    openingContext.current = nextOpeningId;
+                    setTrackedOpeningId(nextOpeningId);
+                  }}
+                >
+                  {trackedOpeningIds.map((id) => (
+                    <option key={id.toString()} value={id.toString()}>OPENING #{id.toString()}</option>
+                  ))}
+                </select>
+                <button type="button" onClick={refreshOpening} disabled={claiming !== null} title="Refresh draw status">
+                  <RefreshCw size={13} />
+                </button>
+              </div>
+
+              {!opening || opening.status === 0 ? (
+                <div className="hp-opening-pending">
+                  <Radio size={15} />
+                  <span>{opening?.roundStatus === 3 ? "ROUND CANCELLED" : "WAITING FOR BEACON"}</span>
+                  {opening?.roundStatus === 3 && address && (
+                    <button
+                      type="button"
+                      disabled={claiming !== null}
+                      onClick={() => runOpeningAction("refund", () => refundHoodPackzOpening(opening.openingId, address))}
+                    >
+                      REFUND {formatOpeningAmount(opening.price, 6)} USDG
+                    </button>
+                  )}
+                </div>
+              ) : opening.status === 3 ? (
+                <div className="hp-opening-complete"><Check size={15} /> PAYMENT REFUNDED</div>
+              ) : (
+                <>
+                  <div className="hp-opening-prizes">
+                    {opening.prizes.map((prizeAddress, index) => {
+                      const token = HOODPACKZ_TOKENS.find(
+                        (item) => item.address.toLowerCase() === prizeAddress.toLowerCase(),
+                      );
+                      const claimed = (opening.claimedPrizes & (1 << index)) !== 0;
+                      return (
+                        <div key={prizeAddress} className={claimed ? "claimed" : ""}>
+                          {token && <Image src={token.logo} alt="" width={30} height={30} />}
+                          <span>
+                            <strong>{token?.ticker ?? shortAddress(prizeAddress)}</strong>
+                            <small>{formatOpeningAmount(opening.amounts[index], token?.decimals ?? 18)}</small>
+                          </span>
+                          <button
+                            type="button"
+                            disabled={claimed || claiming !== null || !address}
+                            onClick={() =>
+                              address &&
+                              runOpeningAction(`prize-${index}`, () =>
+                                claimHoodPackzPrize(opening.openingId, index, address),
+                              )
+                            }
+                          >
+                            {claimed ? <Check size={12} /> : "CLAIM"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {opening.jackpotWinner && (
+                    <button
+                      type="button"
+                      className="hp-jackpot-claim"
+                      disabled={opening.jackpotClaimed || claiming !== null || !address}
+                      onClick={() =>
+                        address &&
+                        runOpeningAction("jackpot", () => claimHoodPackzJackpot(opening.openingId, address))
+                      }
+                    >
+                      {opening.jackpotClaimed
+                        ? "JACKPOT CLAIMED"
+                        : `CLAIM ${formatOpeningAmount(opening.jackpotPayout, 6)} USDG JACKPOT`}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
@@ -257,7 +575,10 @@ export default function HoodPackzPage() {
         <div><Radio size={16} /><span>BEACON</span><strong>4 / 7 THRESHOLD</strong></div>
         <div><ShieldCheck size={16} /><span>COLLATERAL</span><strong>EXPOSURE CAPPED</strong></div>
         <div><Zap size={16} /><span>SETTLEMENT</span><strong>ROBINHOOD CHAIN</strong></div>
-        <div className="hp-status-warning"><TriangleAlert size={16} /><span>CORE</span><strong>NOT DEPLOYED</strong></div>
+        <div className={isLive ? "" : "hp-status-warning"}>
+          {isLive ? <Check size={16} /> : <TriangleAlert size={16} />}
+          <span>PACK SALES</span><strong>{isLive ? "LIVE" : "COMING SOON"}</strong>
+        </div>
       </section>
 
       <section id="assets" className="hp-assets" aria-labelledby="assets-heading">
@@ -269,7 +590,7 @@ export default function HoodPackzPage() {
           <div className="hp-assets-state">
             <span>CONTRACTS</span>
             <strong>7 / 7 ONCHAIN</strong>
-            <small>PACK RESERVES NOT FUNDED</small>
+            <small>{isLive ? "PACK RESERVES LIVE" : "RESERVES PREPARING"}</small>
           </div>
         </div>
 
@@ -307,8 +628,8 @@ export default function HoodPackzPage() {
         </div>
 
         <p className="hp-assets-note">
-          These contracts exist on Robinhood Chain mainnet. HoodPackz will not distribute them
-          until liquidity admission, inventory funding, and the V2 pack core are complete.
+          These contracts exist on Robinhood Chain mainnet. Pack sales activate only when every
+          possible reward is held in reserve and available for settlement.
         </p>
       </section>
 
@@ -318,17 +639,17 @@ export default function HoodPackzPage() {
           <div className="hp-economics-copy">
             <h2 id="economics-heading">NO MYSTERY<br />IN THE MARGIN.</h2>
             <p>
-              Pack proceeds follow one published split. Prize value funds the three-token pull;
-              the rest funds the jackpot and protocol operations.
+              Pack proceeds follow one published split. Inventory funding supports the three-token
+              pull; the rest funds the jackpot and protocol operations.
             </p>
           </div>
-          <div className="hp-split" aria-label="Pack proceeds: 80 percent prize value, 10 percent jackpot, 10 percent protocol">
+          <div className="hp-split" aria-label="Pack proceeds: 80 percent inventory funding, 10 percent jackpot, 10 percent protocol">
             <div className="hp-split-prize" style={{ width: "80%" }}>80%</div>
             <div className="hp-split-jackpot" style={{ width: "10%" }}>10%</div>
             <div className="hp-split-fee" style={{ width: "10%" }}>10%</div>
           </div>
           <div className="hp-ledger">
-            <div><Coins /><span>PRIZE EV</span><strong>80%</strong><small>Three different meme tokens</small></div>
+            <div><Coins /><span>INVENTORY</span><strong>80%</strong><small>Funds admitted token reserves</small></div>
             <div><CircleDollarSign /><span>USDG JACKPOT</span><strong>10%</strong><small>Paid from a capped vault</small></div>
             <div><Check /><span>PROTOCOL</span><strong>10%</strong><small>Operations and reserves</small></div>
           </div>
@@ -355,7 +676,7 @@ export default function HoodPackzPage() {
 
       <footer className="hp-footer">
         <HoodPackzBrand />
-        <p>HOODPACKZ V2 PREVIEW / ROBINHOOD CHAIN</p>
+        <p>HOODPACKZ / ROBINHOOD CHAIN</p>
         <div>
           <a href="https://github.com/Jaredweb3here/hoodpackz" target="_blank" rel="noreferrer" aria-label="HoodPackz on GitHub"><Code2 size={18} /></a>
           <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noreferrer" aria-label="Robinhood Chain explorer"><ExternalLink size={18} /></a>

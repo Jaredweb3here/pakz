@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 export async function POST() {
   return NextResponse.json(
     {
-      error: "HoodPackz V2 is not deployed. Pack opening is disabled and no funds were moved.",
-      code: "V2_NOT_DEPLOYED",
+      error: "Pack sales are not live yet. No funds were moved.",
+      code: "PACK_SALES_NOT_LIVE",
     },
-    { status: 503 }
+    { status: 409 }
   );
 }
