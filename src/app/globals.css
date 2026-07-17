@@ -842,6 +842,24 @@ body {
   font-size: 8px;
 }
 
+.hp-token-address {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  color: rgba(244, 220, 62, 0.68);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 8px;
+  text-decoration: none;
+}
+
+.hp-token-address:hover,
+.hp-token-address:focus-visible {
+  color: var(--hp-yellow);
+  text-decoration: underline;
+}
+
 .hp-total {
   display: flex;
   align-items: end;

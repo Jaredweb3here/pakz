@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { robinhoodChain } from "@/lib/chain";
+import { HOODPACKZ_TOKENS, tokenExplorerUrl } from "@/lib/hoodpackz-tokens";
 import { HoodPackzBrand } from "@/components/brand/hoodpackz-brand";
 
 const TIERS = [
@@ -29,21 +30,9 @@ const TIERS = [
 ] as const;
 
 const TOKEN_POOLS = [
-  [
-    { ticker: "DOGE", name: "Dogecoin", color: "#f3c84b" },
-    { ticker: "PEPE", name: "Pepe", color: "#68d391" },
-    { ticker: "BONK", name: "Bonk", color: "#ff7b54" },
-  ],
-  [
-    { ticker: "WIF", name: "dogwifhat", color: "#bda78a" },
-    { ticker: "FLOKI", name: "Floki", color: "#e45b4f" },
-    { ticker: "SHIB", name: "Shiba Inu", color: "#ff9d3d" },
-  ],
-  [
-    { ticker: "MOG", name: "Mog Coin", color: "#86d6ef" },
-    { ticker: "BRETT", name: "Brett", color: "#5c9ded" },
-    { ticker: "TURBO", name: "Turbo", color: "#f5d444" },
-  ],
+  [HOODPACKZ_TOKENS[0], HOODPACKZ_TOKENS[1], HOODPACKZ_TOKENS[2]],
+  [HOODPACKZ_TOKENS[3], HOODPACKZ_TOKENS[4], HOODPACKZ_TOKENS[5]],
+  [HOODPACKZ_TOKENS[6], HOODPACKZ_TOKENS[0], HOODPACKZ_TOKENS[3]],
 ] as const;
 
 function shortAddress(address: string) {
@@ -142,8 +131,8 @@ export default function HoodPackzPage() {
             PULL THE <span>HOOD.</span>
           </h1>
           <p>
-            Three different meme tokens in every pack. Selection is committed on-chain and
-            finalized by a bonded 4-of-7 randomness network.
+            Seven verified Robinhood Chain ERC-20s are in the preview pool. V2 will select three
+            different tokens using bonded 4-of-7 randomness after the pack core is deployed.
           </p>
           <div className="hp-trust-row">
             <span><ShieldCheck size={16} /> BONDED OPERATORS</span>
@@ -208,15 +197,27 @@ export default function HoodPackzPage() {
 
           <div className="hp-pull-list">
             <div className="hp-pull-title">
-              <span>EXAMPLE PULL</span>
-              <span>3 / 3 UNIQUE</span>
+              <span>VERIFIED CONTRACTS</span>
+              <span>3 / 7 SHOWN</span>
             </div>
             {tokens.map((token, index) => (
               <div className="hp-pull" key={token.ticker}>
                 <span className="hp-mini-token" style={{ background: token.color }}>
                   {token.ticker.slice(0, 1)}
                 </span>
-                <span><strong>{token.ticker}</strong><small>{token.name}</small></span>
+                <span>
+                  <strong>{token.ticker}</strong>
+                  <small>{token.name}</small>
+                  <a
+                    className="hp-token-address"
+                    href={tokenExplorerUrl(token.address)}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${token.name} contract on Blockscout`}
+                  >
+                    {shortAddress(token.address)} <ExternalLink size={9} />
+                  </a>
+                </span>
                 <span className="hp-pull-slot">SLOT {index + 1}</span>
               </div>
             ))}

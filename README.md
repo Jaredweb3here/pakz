@@ -23,6 +23,22 @@ HoodPackz is a planned meme-token pack protocol for Robinhood Chain. Each pack w
 
 The frontend intentionally keeps opening disabled until a HoodPackz V2 core address and production ABI are configured.
 
+## Verified preview assets
+
+The preview pool uses seven ERC-20 contracts verified directly through the public Robinhood Chain RPC at `https://rpc.mainnet.chain.robinhood.com` (chain ID `4663`):
+
+| Token | Contract |
+| --- | --- |
+| CASHCAT | `0x020bfc650a365f8bb26819deaabf3e21291018b4` |
+| Index | `0x56910d4409f3a0c78c64dd8d0545ff0705389870` |
+| JUGGERNAUT | `0xd7321801caae694090694ff55a9323139f043b88` |
+| RWA | `0x4a380618777eed8d513bcd6e983df3c5d2ba7777` |
+| PONS | `0x39dbed3a2bd333467115de45665cc57f813c4571` |
+| TENDIES | `0x45242320dbb855eea8fd36804c6487e10e97fcf9` |
+| WALLET | `0x0339f5459fc690ac85f1782e15782a151b4a9e1b` |
+
+The contracts and ERC-20 metadata are real. Their inclusion remains preview-only until asset admission, liquidity testing, inventory funding, and the V2 core deployment are complete.
+
 ## Implemented
 
 - Append-only threshold-key epochs.
