@@ -44,8 +44,8 @@ const TIERS = [
 ] as const;
 
 const TOKEN_POOLS = [
-  [HOODPACKZ_TOKENS[0], HOODPACKZ_TOKENS[1], HOODPACKZ_TOKENS[2]],
-  [HOODPACKZ_TOKENS[3], HOODPACKZ_TOKENS[4], HOODPACKZ_TOKENS[5]],
+  [HOODPACKZ_TOKENS[0], HOODPACKZ_TOKENS[2], HOODPACKZ_TOKENS[4]],
+  [HOODPACKZ_TOKENS[1], HOODPACKZ_TOKENS[3], HOODPACKZ_TOKENS[5]],
   [HOODPACKZ_TOKENS[6], HOODPACKZ_TOKENS[0], HOODPACKZ_TOKENS[3]],
 ] as const;
 
@@ -147,7 +147,7 @@ export default function HoodPackzPage() {
   const { connect, connectors, isPending: connecting } = useConnect();
   const { switchChain, isPending: switching } = useSwitchChain();
   const [tierIndex, setTierIndex] = useState(1);
-  const [poolIndex, setPoolIndex] = useState(0);
+  const [poolIndex, setPoolIndex] = useState(1);
   const [openingState, setOpeningState] = useState<"idle" | "approving" | "submitting">("idle");
   const [claiming, setClaiming] = useState<string | null>(null);
   const [openingError, setOpeningError] = useState<string | null>(null);
@@ -158,7 +158,7 @@ export default function HoodPackzPage() {
   const walletContext = useRef<{ address?: string; chainId?: number }>({});
   const openingContext = useRef<bigint | null>(null);
   const tier = TIERS[tierIndex];
-  const tokens = TOKEN_POOLS[poolIndex];
+  const tokens = TOKEN_POOLS[tierIndex] ?? TOKEN_POOLS[poolIndex];
   const isLive = Boolean(HOODPACKZ_V2_ADDRESS) && HOODPACKZ_PACK_SALES_LIVE;
   const canRecover = HOODPACKZ_V2_RECOVERY_AVAILABLE;
 
@@ -320,6 +320,7 @@ export default function HoodPackzPage() {
           <a href="#assets">TOKENS</a>
           <a href="#proof">PROOF</a>
           <a href="#economics">ECONOMICS</a>
+          <a href="#contracts">CONTRACTS</a>
         </nav>
         <HoodWalletButton />
       </header>
@@ -419,9 +420,9 @@ export default function HoodPackzPage() {
           <div className="hp-pull-list">
             <div className="hp-pull-title">
               <span>VERIFIED CONTRACTS</span>
-              <span>3 / 7 SHOWN</span>
+              <span>7 / 7 POOL</span>
             </div>
-            {tokens.map((token, index) => (
+            {HOODPACKZ_TOKENS.map((token, index) => (
               <div className="hp-pull" key={token.ticker}>
                 <span className="hp-mini-token">
                   <Image src={token.logo} alt="" width={28} height={28} />
