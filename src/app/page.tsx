@@ -296,7 +296,7 @@ export default function HoodPackzPage() {
   }
 
   const actionLabel = !isLive
-    ? "LAUNCHING SOON"
+    ? "SALES PAUSED"
     : !isConnected
       ? connecting
         ? "CONNECTING WALLET"
@@ -329,7 +329,7 @@ export default function HoodPackzPage() {
         <div className="hp-intro">
           <div className="hp-kicker">
             <span>PACK OPENING DESK / RHC 4663</span>
-            <span className={isLive ? "hp-live" : "hp-launching"}><i /> {isLive ? "LIVE" : "LAUNCHING"}</span>
+            <span className={isLive ? "hp-live" : "hp-launching"}><i /> {isLive ? "LIVE" : "SALES PAUSED"}</span>
           </div>
           <h1 id="pack-heading">
             THREE TOKENS.<br />ONE <span>SEALED DRAW.</span>
@@ -358,7 +358,7 @@ export default function HoodPackzPage() {
               <span>HOODPACKZ / DROP 001</span>
               <span className={isLive ? "hp-ticket-live" : "hp-ticket-lock"}>
                 {isLive ? <Radio size={12} /> : <LockKeyhole size={12} />}
-                {isLive ? "LIVE" : "LAUNCHING"}
+                {isLive ? "LIVE" : "PAUSED"}
               </span>
             </div>
             <div className="hp-ticket-price">
@@ -479,7 +479,7 @@ export default function HoodPackzPage() {
             ) : isLive ? (
               "Payment is submitted from your wallet. Three funded token rewards settle after the beacon finalizes."
             ) : (
-              "PACK SALES OPEN WHEN RESERVES AND THE RANDOMNESS NETWORK ARE LIVE."
+              "ONCHAIN SALES ARE PAUSED WHILE INVENTORY AND BEACON CAPACITY ARE ACTIVATED."
             )}
           </p>
 
@@ -581,7 +581,7 @@ export default function HoodPackzPage() {
         <div><Zap size={16} /><span>SETTLEMENT</span><strong>ROBINHOOD CHAIN</strong></div>
         <div className={isLive ? "" : "hp-status-warning"}>
           {isLive ? <Check size={16} /> : <TriangleAlert size={16} />}
-          <span>PACK SALES</span><strong>{isLive ? "LIVE" : "COMING SOON"}</strong>
+          <span>PACK SALES</span><strong>{isLive ? "LIVE" : "PAUSED"}</strong>
         </div>
       </section>
 
@@ -594,7 +594,7 @@ export default function HoodPackzPage() {
           <div className="hp-assets-state">
             <span>CONTRACTS</span>
             <strong>7 / 7 ONCHAIN</strong>
-            <small>{isLive ? "PACK RESERVES LIVE" : "RESERVES PREPARING"}</small>
+            <small>{isLive ? "PACK RESERVES LIVE" : "ONCHAIN ACTIVATION PENDING"}</small>
           </div>
         </div>
 
