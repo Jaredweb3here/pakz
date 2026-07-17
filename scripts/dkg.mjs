@@ -13,15 +13,17 @@
  * Requires: @noble/curves (npm install -g @noble/curves)
  */
 
-import { bls12_381 as bls } from "@noble/curves/bls12-381";
+import { bls12_381 as bls } from "@noble/curves/bls12-381.js";
 import { randomBytes } from "crypto";
 import { writeFileSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const outArg = process.argv[process.argv.indexOf("--out") + 1];
-const outFile = resolve(__dir, "..", outArg ?? ".dkg/epoch-1.json");
+const projectRoot = resolve(__dir, "..");
+const outIdx = process.argv.indexOf("--out");
+const outArg = outIdx !== -1 ? process.argv[outIdx + 1] : null;
+const outFile = outArg ? resolve(outArg) : resolve(projectRoot, ".dkg", "epoch-1.json");
 
 const OPERATORS = 7;
 const THRESHOLD = 4;
@@ -53,11 +55,11 @@ function evalPoly(poly, x) {
 
 // ── G1 point serialisation (uncompressed, 96 bytes) ──────────────────────────
 function g1ToHex(point) {
-  return Buffer.from(point.toRawBytes(false)).toString("hex"); // uncompressed
+  return point.toHex(false); // uncompressed
 }
 
-function g2ToHex(point) {
-  return Buffer.from(point.toRawBytes(false)).toString("hex"); // uncompressed
+function scalarToG1(scalar) {
+  return bls.G1.Point.BASE.multiply(scalar);
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
@@ -65,20 +67,15 @@ const poly = Array.from({ length: THRESHOLD }, () => randomFr());
 const secret = poly[0];
 
 const masterPrivKey = secret;
-const masterPubKey  = bls.G1.ProjectivePoint.fromPrivateKey(
-  masterPrivKey.toString(16).padStart(64, "0")
-);
+const masterPubKey  = scalarToG1(masterPrivKey);
 
 const shares = [];
 for (let i = 1; i <= OPERATORS; i++) {
   const shareScalar = evalPoly(poly, BigInt(i));
-  const sharePrivKey = shareScalar.toString(16).padStart(64, "0");
-  const sharePubKey  = bls.G1.ProjectivePoint.fromPrivateKey(sharePrivKey);
+  const sharePubKey = scalarToG1(shareScalar);
   shares.push({
     operatorIndex: i - 1,
-    // In production: distribute sharePrivKey to each independent operator.
-    // Here all operators are controlled by the deployer.
-    privateKey:    "0x" + sharePrivKey,
+    privateKey:    "0x" + shareScalar.toString(16).padStart(64, "0"),
     publicKey:     "0x" + g1ToHex(sharePubKey),
   });
 }

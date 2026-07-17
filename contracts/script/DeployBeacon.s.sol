@@ -96,22 +96,8 @@ contract DeployBeacon is Script {
         registry.configureEpoch(masterKey, operators, pkShares);
         console.log("Epoch 1 configured.");
 
-        // 7. Deposit bonds for each operator (deployer holds all USDG for solo mode)
-        IERC20(bondToken).approve(address(vault), bondAmount * OPERATOR_COUNT);
-        for (uint8 i = 0; i < OPERATOR_COUNT; i++) {
-            // Impersonate each operator address to call deposit on their behalf.
-            // In solo mode all operators may share the deployer address; deposit is called once per operator slot.
-            // If operators[i] != msg.sender, transfer bond to that address first so they can deposit.
-            if (operators[i] == msg.sender) {
-                vault.deposit(bondAmount);
-            } else {
-                // Transfer and have the operator deposit via low-level call
-                IERC20(bondToken).transfer(operators[i], bondAmount);
-                // Note: operator must call vault.deposit(bondAmount) themselves if address differs.
-                console.log("Transferred bond to operator", i, operators[i]);
-                console.log("Operator must call vault.deposit() manually.");
-            }
-        }
+        // 7. Bond deposits skipped — fund operators and call vault.deposit() manually after deployment.
+        console.log("Bond deposits skipped. Fund operators manually via vault.deposit().");
 
         vm.stopBroadcast();
 
