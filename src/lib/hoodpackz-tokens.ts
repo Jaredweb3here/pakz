@@ -7,6 +7,7 @@ export const HOODPACKZ_TOKENS = [
     ticker: "CASHCAT",
     decimals: 18,
     color: "#f3c84b",
+    logo: "/token-logos/cashcat.jpg",
   },
   {
     address: "0x56910d4409f3a0c78c64dd8d0545ff0705389870",
@@ -14,6 +15,7 @@ export const HOODPACKZ_TOKENS = [
     ticker: "Index",
     decimals: 18,
     color: "#86d6ef",
+    logo: "/token-logos/index.jpg",
   },
   {
     address: "0xd7321801caae694090694ff55a9323139f043b88",
@@ -21,6 +23,7 @@ export const HOODPACKZ_TOKENS = [
     ticker: "JUGGERNAUT",
     decimals: 18,
     color: "#ff604d",
+    logo: "/token-logos/juggernaut.jpg",
   },
   {
     address: "0x4a380618777eed8d513bcd6e983df3c5d2ba7777",
@@ -28,6 +31,7 @@ export const HOODPACKZ_TOKENS = [
     ticker: "RWA",
     decimals: 18,
     color: "#68d391",
+    logo: "/token-logos/rwa.jpg",
   },
   {
     address: "0x39dbed3a2bd333467115de45665cc57f813c4571",
@@ -35,6 +39,7 @@ export const HOODPACKZ_TOKENS = [
     ticker: "PONS",
     decimals: 18,
     color: "#bda78a",
+    logo: "/token-logos/pons.jpg",
   },
   {
     address: "0x45242320dbb855eea8fd36804c6487e10e97fcf9",
@@ -42,6 +47,7 @@ export const HOODPACKZ_TOKENS = [
     ticker: "TENDIES",
     decimals: 18,
     color: "#ff9d3d",
+    logo: "/token-logos/tendies.jpg",
   },
   {
     address: "0x0339f5459fc690ac85f1782e15782a151b4a9e1b",
@@ -49,6 +55,7 @@ export const HOODPACKZ_TOKENS = [
     ticker: "WALLET",
     decimals: 18,
     color: "#5c9ded",
+    logo: "/token-logos/wallet.jpg",
   },
 ] as const;
 

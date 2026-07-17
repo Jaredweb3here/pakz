@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   ArrowUpRight,
   Check,
@@ -123,47 +124,60 @@ export default function HoodPackzPage() {
       <section id="packs" className="hp-workbench" aria-labelledby="pack-heading">
         <div className="hp-intro">
           <div className="hp-kicker">
-            <span>ROBINHOOD CHAIN / 4663</span>
-            <span className="hp-live"><i /> NETWORK LIVE</span>
+            <span>PACK OPENING DESK / RHC 4663</span>
+            <span className="hp-live"><i /> PREVIEW MODE</span>
           </div>
           <h1 id="pack-heading">
-            PICK A PACK.
-            <br />
-            PULL THE <span>HOOD.</span>
+            THREE TOKENS.<br />ONE <span>SEALED DRAW.</span>
           </h1>
           <p>
-            Seven verified Robinhood Chain ERC-20s are in the preview pool. V2 will select three
-            different tokens using bonded 4-of-7 randomness after the pack core is deployed.
+            At launch, each USDG tier will draw three different assets from funded onchain
+            inventory. No duplicates, no rerolls after the request is sealed.
           </p>
+          <div className="hp-pool-strip" aria-label="Seven verified tokens in the pool">
+            {HOODPACKZ_TOKENS.map((token) => (
+              <span key={token.address} title={token.ticker}>
+                <Image src={token.logo} alt={`${token.name} logo`} width={34} height={34} />
+              </span>
+            ))}
+            <small>7 VERIFIED ASSETS</small>
+          </div>
           <div className="hp-trust-row">
-            <span><ShieldCheck size={16} /> BONDED OPERATORS</span>
-            <span><Dices size={16} /> NO BLOCK ENTROPY</span>
+            <span><ShieldCheck size={15} /> 4-OF-7 BEACON</span>
+            <span><Dices size={15} /> 3 UNIQUE OUTPUTS</span>
           </div>
         </div>
 
         <div className="hp-product-stage" aria-label={`${tier.name} pack preview`}>
-          <div className="hp-stage-index">PACK / 00{tierIndex + 1}</div>
-          <div className="hp-pack-shadow" />
-          <div className={`hp-pack hp-pack-${tierIndex}`}>
-            <div className="hp-pack-crimp hp-pack-crimp-top" />
-            <div className="hp-pack-copy">
-              <div className="hp-pack-small">RHC // SERIES 01</div>
-              <strong>HOOD<br />PACKZ</strong>
-              <div className="hp-pack-tier">{tier.name.toUpperCase()} PACK</div>
+          <div className={`hp-drop-ticket hp-drop-ticket-${tierIndex}`}>
+            <div className="hp-ticket-head">
+              <span>HOODPACKZ / DROP 001</span>
+              <span className="hp-ticket-lock"><LockKeyhole size={12} /> NOT LIVE</span>
             </div>
-            <div className="hp-token-stack" aria-label="Three token preview">
+            <div className="hp-ticket-price">
+              <span>{tier.name} pack</span>
+              <strong>${tier.price}<small> USDG</small></strong>
+            </div>
+            <div className="hp-ticket-rule">
+              <span>OUTPUT</span>
+              <strong>3 TOKENS / NO DUPES</strong>
+            </div>
+            <div className="hp-ticket-pulls" aria-label="Three token preview">
               {tokens.map((token, index) => (
-                <div
-                  key={token.ticker}
-                  className="hp-token-chip"
-                  style={{ "--chip-color": token.color, "--chip-index": index } as React.CSSProperties}
-                >
-                  {token.ticker.slice(0, 1)}
+                <div key={token.ticker} className="hp-ticket-token">
+                  <span>0{index + 1}</span>
+                  <Image src={token.logo} alt={`${token.name} logo`} width={64} height={64} />
+                  <div>
+                    <strong>{token.ticker}</strong>
+                    <small>{token.name}</small>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="hp-pack-count">3 TOKENS / NO DUPES</div>
-            <div className="hp-pack-crimp hp-pack-crimp-bottom" />
+            <div className="hp-ticket-foot">
+              <span>PREVIEW SELECTION</span>
+              <span>FINAL DRAW: BEACON</span>
+            </div>
           </div>
           <button type="button" className="hp-shuffle" onClick={reshufflePreview}>
             <RefreshCw size={14} /> SHUFFLE PREVIEW
@@ -203,8 +217,8 @@ export default function HoodPackzPage() {
             </div>
             {tokens.map((token, index) => (
               <div className="hp-pull" key={token.ticker}>
-                <span className="hp-mini-token" style={{ background: token.color }}>
-                  {token.ticker.slice(0, 1)}
+                <span className="hp-mini-token">
+                  <Image src={token.logo} alt="" width={28} height={28} />
                 </span>
                 <span>
                   <strong>{token.ticker}</strong>
@@ -276,7 +290,7 @@ export default function HoodPackzPage() {
               aria-label={`${token.name} contract on Blockscout`}
             >
               <span className="hp-token-identity">
-                <i style={{ background: token.color }}>{token.ticker.slice(0, 1)}</i>
+                <i><Image src={token.logo} alt={`${token.name} logo`} width={38} height={38} /></i>
                 <span>
                   <strong>{token.ticker}</strong>
                   <small>{token.name}</small>
