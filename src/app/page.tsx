@@ -793,7 +793,7 @@ export default function HoodPackzPage() {
         </div>
         <div className="hp-footer-word" aria-hidden="true">PAKZ.FUN</div>
         <div className="hp-footer-base">
-          <HoodPackzBrand />
+          <p />
           <p>ROBINHOOD CHAIN / 4663 / BETA</p>
           <div>
             <a href="https://x.com/pakzdotfun" target="_blank" rel="noreferrer" aria-label="Pakz.fun on X">X</a>
