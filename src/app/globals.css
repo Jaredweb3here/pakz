@@ -1417,7 +1417,8 @@ body {
   font-size: clamp(34px, 4.2vw, 62px);
 }
 
-.hp-proof-head > a {
+.hp-proof-head > a,
+.hp-proof-note {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
@@ -1661,7 +1662,8 @@ body {
     display: block;
   }
 
-  .hp-proof-head > a {
+  .hp-proof-head > a,
+  .hp-proof-note {
     margin-top: 26px;
   }
 

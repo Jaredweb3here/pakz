@@ -8,7 +8,6 @@ import {
   Check,
   ChevronDown,
   CircleDollarSign,
-  Code2,
   Coins,
   Dices,
   ExternalLink,
@@ -735,9 +734,7 @@ export default function HoodPackzPage() {
             <span className="hp-section-label">TRANSPARENT BETA DRAW</span>
             <h2 id="proof-heading">THE TARGET BLOCK IS SET<br />BEFORE THE REVEAL.</h2>
           </div>
-          <a href="https://github.com/Jaredweb3here/pakz" target="_blank" rel="noreferrer">
-            VIEW SOURCE <ArrowUpRight size={16} />
-          </a>
+          <span className="hp-proof-note">AUDITABLE DRAW</span>
         </div>
         <div className="hp-proof-grid">
           <article><span>01</span><Radio /><h3>OPEN</h3><p>Your transaction locks the opening to a future Robinhood block.</p></article>
@@ -753,9 +750,7 @@ export default function HoodPackzPage() {
             <span className="hp-section-label">ONCHAIN RECORD / ROBINHOOD CHAIN 4663</span>
             <h2 id="transparency-heading">ADDRESSES YOU CAN CHECK.</h2>
           </div>
-          <a href="https://github.com/Jaredweb3here/pakz" target="_blank" rel="noreferrer">
-            VIEW SOURCE <ArrowUpRight size={16} />
-          </a>
+          <span className="hp-proof-note">BLOCKSCOUT LINKS</span>
         </div>
         <div className="hp-contract-grid">
           {([
@@ -788,7 +783,6 @@ export default function HoodPackzPage() {
             <a href="#packs">Drops <ArrowUpRight size={18} /></a>
             <a href="#assets">Reward pool <ArrowUpRight size={18} /></a>
             <a href="https://x.com/pakzdotfun" target="_blank" rel="noreferrer">X / @pakzdotfun <ArrowUpRight size={18} /></a>
-            <a href="https://github.com/Jaredweb3here/pakz" target="_blank" rel="noreferrer">Source <Code2 size={18} /></a>
           </nav>
         </div>
         <div className="hp-footer-word" aria-hidden="true">PAKZ.FUN</div>

@@ -4,8 +4,6 @@
 
 [![Mainnet](https://img.shields.io/badge/mainnet-LIVE-2e7d32?style=flat-square&logo=ethereum)](https://pakz.fun)
 [![Chain](https://img.shields.io/badge/Robinhood_Chain-4663-1565c0?style=flat-square)](https://robinhoodchain.blockscout.com)
-[![Contracts](https://img.shields.io/github/actions/workflow/status/Jaredweb3here/hoodpackz/contracts.yml?branch=main&label=contracts&style=flat-square)](https://github.com/Jaredweb3here/hoodpackz/actions/workflows/contracts.yml)
-[![Frontend](https://img.shields.io/github/actions/workflow/status/Jaredweb3here/hoodpackz/frontend.yml?branch=main&label=frontend&style=flat-square)](https://github.com/Jaredweb3here/hoodpackz/actions/workflows/frontend.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Forge Tests](https://img.shields.io/badge/forge-passing-brightgreen?style=flat-square)](contracts/)
 

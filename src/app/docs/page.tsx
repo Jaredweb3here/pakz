@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, Check, Clock3, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Check, Clock3, LockKeyhole, ShieldCheck } from "lucide-react";
 import { HoodPackzBrand } from "@/components/brand/hoodpackz-brand";
 
 export const metadata: Metadata = {
@@ -79,10 +79,8 @@ export default function DocsPage() {
 
       <footer className="hp-footer hp-docs-footer">
         <HoodPackzBrand />
-        <p>PROTOCOL SOURCE AND TESTS</p>
-        <a href="https://github.com/Jaredweb3here/pakz" target="_blank" rel="noreferrer">
-          GITHUB <ArrowUpRight size={15} />
-        </a>
+        <p>PROTOCOL STATUS AND TEST NOTES</p>
+        <span>ROBINHOOD CHAIN / 4663</span>
       </footer>
     </main>
   );
