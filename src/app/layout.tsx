@@ -17,19 +17,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Pakz.fun | Onchain Token Drops",
   description:
-    "Open three-token drops using future-block beta randomness on Robinhood Chain.",
+    "Open three-token drops from funded reserves on Robinhood Chain.",
   icons: {
     icon: "/favicon.png",
     apple: "/favicon.png",
   },
   openGraph: {
     title: "Pakz.fun",
-    description: "Three-token drops using future-block beta randomness.",
+    description: "Three-token drops from funded reserves on Robinhood Chain.",
   },
   twitter: {
     card: "summary",
     title: "Pakz.fun",
-    description: "Three-token drops using future-block beta randomness.",
+    description: "Three-token drops from funded reserves on Robinhood Chain.",
   },
 };
 

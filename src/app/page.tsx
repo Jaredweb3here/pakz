@@ -47,21 +47,21 @@ const TIERS = [
     price: 5,
     label: "DROP 01",
     image: "/trencher-pack.png",
-    note: "The opener. Three unique token rewards from the full seven-asset pool.",
+    note: "Start here. Three real tokens, locked to one onchain draw.",
   },
   {
     name: "Cashcat Max",
     price: 15,
     label: "DROP 02",
     image: "/cashcat-max-pack.png",
-    note: "A heavier drop with larger token allocations and the same sealed draw.",
+    note: "The heavier pull. Bigger allocations, same transparent draw.",
   },
   {
     name: "Techpro",
     price: 50,
     label: "DROP 03",
     image: "/techpro-pack.png",
-    note: "The top drop. Maximum configured rewards when its inventory is fully backed.",
+    note: "The max tier. Opens when the full reward reserve is ready.",
   },
 ] as const;
 
@@ -331,9 +331,9 @@ export default function HoodPackzPage() {
   }
 
   const actionLabel = !isLive
-    ? "SALES PAUSED"
+    ? "DROPS PAUSED"
     : !tierIsLive
-      ? "TIER PAUSED"
+      ? "DROP LOCKED"
     : !isConnected
       ? connecting
         ? "CONNECTING WALLET"
@@ -345,15 +345,15 @@ export default function HoodPackzPage() {
         : openingState === "approving"
           ? "APPROVE USDG IN WALLET"
           : openingState === "submitting"
-            ? "CONFIRM PACK OPENING"
-            : `OPEN ${tier.name.toUpperCase()} PACK`;
+            ? "CONFIRM DROP OPENING"
+            : `OPEN ${tier.name.toUpperCase()}`;
 
   return (
     <main id="top" className="hp-shell">
       <header className="hp-header">
         <HoodPackzBrand href="#top" />
         <nav className="hp-nav" aria-label="Primary navigation">
-          <a href="#packs">PACKS</a>
+          <a href="#packs">DROPS</a>
           <a href="#assets">TOKENS</a>
           <a href="#proof">PROOF</a>
           <a href="#economics">ECONOMICS</a>
@@ -370,15 +370,15 @@ export default function HoodPackzPage() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="hp-kicker">
-            <span>PACK OPENING DESK / RHC 4663</span>
-            <span className={isLive ? "hp-live" : "hp-launching"}><i /> {isLive ? "LIVE" : "SALES PAUSED"}</span>
+            <span>LIVE DROP DESK / RHC 4663</span>
+            <span className={isLive ? "hp-live" : "hp-launching"}><i /> {isLive ? "LIVE" : "DROPS PAUSED"}</span>
           </div>
           <h1 id="pack-heading">
-            PACK THE<br />WHOLE <span>CHAIN.</span>
+            OPEN REAL<br />TOKEN <span>PAKZ.</span>
           </h1>
           <p>
-            Three distinct token rewards. One sealed onchain draw. Pick a tier, commit the future
-            block, and claim from inventory already reserved for the result.
+            Pick a drop. Pay in USDG. Reveal three different meme tokens from a reserve that is
+            already funded before the draw settles.
           </p>
           <div className="hp-pool-strip" aria-label="Seven verified tokens in the pool">
             {HOODPACKZ_TOKENS.map((token) => (
@@ -386,11 +386,11 @@ export default function HoodPackzPage() {
                 <Image src={token.logo} alt={`${token.name} logo`} width={34} height={34} />
               </span>
             ))}
-            <small>7 VERIFIED ASSETS</small>
+            <small>7 ONCHAIN ASSETS</small>
           </div>
           <div className="hp-trust-row">
-            <span><ShieldCheck size={15} /> FUTURE-BLOCK DRAW</span>
-            <span><Dices size={15} /> 3 UNIQUE OUTPUTS</span>
+            <span><ShieldCheck size={15} /> FUNDED BEFORE REVEAL</span>
+            <span><Dices size={15} /> 3 UNIQUE TOKENS</span>
           </div>
         </motion.div>
 
@@ -422,7 +422,7 @@ export default function HoodPackzPage() {
               <span className="hp-pack-card-art">
                 <Image
                   src={option.image}
-                  alt={`${option.name} Pakz.fun pack`}
+                  alt={`${option.name} Pakz.fun drop`}
                   width={1024}
                   height={1536}
                   priority={index === 1}
@@ -441,7 +441,7 @@ export default function HoodPackzPage() {
           <div className="hp-panel-head">
             <div>
               <span>SELECT DROP</span>
-              <strong>PACK TIER</strong>
+              <strong>DROP MENU</strong>
             </div>
             <span className="hp-series">SERIES 01</span>
           </div>
@@ -467,8 +467,8 @@ export default function HoodPackzPage() {
 
           <div className="hp-pull-list">
             <div className="hp-pull-title">
-              <span>VERIFIED CONTRACTS</span>
-              <span>7 / 7 POOL</span>
+              <span>REWARD POOL</span>
+              <span>7 ASSETS</span>
             </div>
             {HOODPACKZ_TOKENS.map((token, index) => (
               <div className="hp-pull" key={token.ticker}>
@@ -494,7 +494,7 @@ export default function HoodPackzPage() {
           </div>
 
           <div className="hp-total">
-            <span>PACK TOTAL</span>
+            <span>DROP TOTAL</span>
             <strong>{tier.price}.00 <small>USDG</small></strong>
           </div>
 
@@ -508,28 +508,28 @@ export default function HoodPackzPage() {
             {actionLabel}
           </button>
           <button type="button" className="hp-demo-action" onClick={() => setDemoOpen(true)}>
-            <Dices size={17} /> OPEN TEST PACK
+            <Dices size={17} /> PREVIEW OPENING
           </button>
           <p className="hp-action-note" aria-live="polite">
             {submission ? (
               <>
-                OPENING #{submission.openingId.toString()} QUEUED.{" "}
+                OPENING #{submission.openingId.toString()} SENT.{" "}
                 <a
                   href={`${robinhoodChain.blockExplorers.default.url}/tx/${submission.hash}`}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  VIEW TRANSACTION <ExternalLink size={9} />
+                  VIEW TX <ExternalLink size={9} />
                 </a>
               </>
             ) : openingError ? (
               <span className="hp-action-error">{openingError}</span>
             ) : tierIsLive ? (
-              "Payment is submitted from your wallet. Three funded rewards settle from a future Robinhood block hash."
+              "Your wallet submits the payment. The draw settles from a future Robinhood block hash."
             ) : isLive ? (
-              "TRENCHER IS LIVE. CASHCAT MAX AND TECHPRO REMAIN PAUSED UNTIL THEIR INVENTORY IS FULLY FUNDED."
+              "TRENCHER IS LIVE. CASHCAT MAX AND TECHPRO UNLOCK AFTER THEIR RESERVES ARE FUNDED."
             ) : (
-              "ONCHAIN SALES ARE PAUSED WHILE THE SIMPLIFIED BETA CORE AND INVENTORY ARE ACTIVATED."
+              "DROPS ARE PAUSED WHILE THE BETA RESERVE IS BEING ACTIVATED."
             )}
           </p>
 
@@ -560,14 +560,14 @@ export default function HoodPackzPage() {
               {!opening || opening.status === 0 ? (
                 <div className="hp-opening-pending">
                   <Radio size={15} />
-                  <span>{opening?.roundStatus === 3 ? "DRAW CANCELLED" : opening?.targetBlock ? `WAITING FOR BLOCK ${opening.targetBlock}` : "WAITING FOR RANDOMNESS"}</span>
+                  <span>{opening?.roundStatus === 3 ? "DRAW CANCELLED" : opening?.targetBlock ? `WAITING FOR BLOCK ${opening.targetBlock}` : "DRAW PENDING"}</span>
                   {opening?.canFinalize && !opening.canCancel && address && (
                     <button
                       type="button"
                       disabled={claiming !== null}
                       onClick={() => runOpeningAction("finalize", () => finalizeHoodPackzOpening(opening.openingId, address))}
                     >
-                      FINALIZE DRAW
+                      REVEAL DRAW
                     </button>
                   )}
                   {opening?.canCancel && address && (
@@ -576,7 +576,7 @@ export default function HoodPackzPage() {
                       disabled={claiming !== null}
                       onClick={() => runOpeningAction("cancel", () => cancelExpiredHoodPackzOpening(opening.openingId, address))}
                     >
-                      REFUND EXPIRED DRAW
+                      REFUND EXPIRED OPENING
                     </button>
                   )}
                   {opening?.roundStatus === 3 && address && (
@@ -590,7 +590,7 @@ export default function HoodPackzPage() {
                   )}
                 </div>
               ) : opening.status === 3 ? (
-                <div className="hp-opening-complete"><Check size={15} /> PAYMENT REFUNDED</div>
+                <div className="hp-opening-complete"><Check size={15} /> REFUND COMPLETE</div>
               ) : (
                 <>
                   <div className="hp-opening-prizes">
@@ -645,25 +645,25 @@ export default function HoodPackzPage() {
       </section>
 
       <section className="hp-status-rail" aria-label="Protocol status">
-        <div><Radio size={16} /><span>RANDOMNESS</span><strong>FUTURE BLOCK</strong></div>
-        <div><ShieldCheck size={16} /><span>INVENTORY</span><strong>PRE-FUNDED</strong></div>
+        <div><Radio size={16} /><span>DRAW</span><strong>FUTURE BLOCK</strong></div>
+        <div><ShieldCheck size={16} /><span>RESERVE</span><strong>PRE-FUNDED</strong></div>
         <div><Zap size={16} /><span>SETTLEMENT</span><strong>ROBINHOOD CHAIN</strong></div>
         <div className={isLive ? "" : "hp-status-warning"}>
           {isLive ? <Check size={16} /> : <TriangleAlert size={16} />}
-          <span>PACK SALES</span><strong>{isLive ? "LIVE" : "PAUSED"}</strong>
+          <span>DROPS</span><strong>{isLive ? "LIVE" : "PAUSED"}</strong>
         </div>
       </section>
 
       <section id="assets" className="hp-assets" aria-labelledby="assets-heading">
         <div className="hp-assets-head">
           <div>
-            <span className="hp-section-label">ROBINHOOD CHAIN / VERIFIED ERC-20</span>
-            <h2 id="assets-heading">THE REAL TOKEN POOL.</h2>
+            <span className="hp-section-label">ROBINHOOD CHAIN / ERC-20 REWARDS</span>
+            <h2 id="assets-heading">SEVEN TOKENS.<br />ONE DRAW.</h2>
           </div>
           <div className="hp-assets-state">
             <span>CONTRACTS</span>
             <strong>7 / 7 ONCHAIN</strong>
-            <small>{isLive ? "PACK RESERVES LIVE" : "ONCHAIN ACTIVATION PENDING"}</small>
+            <small>{isLive ? "RESERVE ACTIVE" : "RESERVE PENDING"}</small>
           </div>
         </div>
 
@@ -701,30 +701,30 @@ export default function HoodPackzPage() {
         </div>
 
         <p className="hp-assets-note">
-          These contracts exist on Robinhood Chain mainnet. Pack sales activate only when every
-          possible reward is held in reserve and available for settlement.
+          Every reward token is an ERC-20 on Robinhood Chain. A drop can only open when the reserve
+          can cover every possible result.
         </p>
       </section>
 
       <section id="economics" className="hp-economics" aria-labelledby="economics-heading">
-        <div className="hp-section-label">EVERY DOLLAR ACCOUNTED FOR</div>
+        <div className="hp-section-label">CLEAR SPLIT</div>
         <div className="hp-economics-grid">
           <div className="hp-economics-copy">
             <h2 id="economics-heading">NO MYSTERY<br />IN THE MARGIN.</h2>
             <p>
-              Pack proceeds follow one published split. Inventory funding supports the three-token
-              pull; the rest funds the jackpot and protocol operations.
+              Each opening follows the same split: most of the payment backs rewards, a slice feeds
+              the jackpot, and the rest keeps the protocol running.
             </p>
           </div>
-          <div className="hp-split" aria-label="Pack proceeds: 80 percent inventory funding, 10 percent jackpot, 10 percent protocol">
+          <div className="hp-split" aria-label="Opening split: 80 percent rewards, 10 percent jackpot, 10 percent protocol">
             <div className="hp-split-prize">80%</div>
             <div className="hp-split-jackpot">10%</div>
             <div className="hp-split-fee">10%</div>
           </div>
           <div className="hp-ledger">
-            <div><Coins /><span>INVENTORY</span><strong>80%</strong><small>Funds admitted token reserves</small></div>
-            <div><CircleDollarSign /><span>USDG JACKPOT</span><strong>10%</strong><small>Paid from a capped vault</small></div>
-            <div><Check /><span>PROTOCOL</span><strong>10%</strong><small>Operations and reserves</small></div>
+            <div><Coins /><span>REWARDS</span><strong>80%</strong><small>Funds the token reserve</small></div>
+            <div><CircleDollarSign /><span>JACKPOT</span><strong>10%</strong><small>Builds the USDG vault</small></div>
+            <div><Check /><span>PROTOCOL</span><strong>10%</strong><small>Keeps the system live</small></div>
           </div>
         </div>
       </section>
@@ -732,35 +732,35 @@ export default function HoodPackzPage() {
       <section id="proof" className="hp-proof" aria-labelledby="proof-heading">
         <div className="hp-proof-head">
           <div>
-            <span className="hp-section-label">SIMPLE BETA RANDOMNESS</span>
-            <h2 id="proof-heading">THE BLOCK IS CHOSEN FIRST.<br />THE HASH DETERMINES THE DRAW.</h2>
+            <span className="hp-section-label">TRANSPARENT BETA DRAW</span>
+            <h2 id="proof-heading">THE TARGET BLOCK IS SET<br />BEFORE THE REVEAL.</h2>
           </div>
-          <a href="https://github.com/Jaredweb3here/hoodpackz" target="_blank" rel="noreferrer">
+          <a href="https://github.com/Jaredweb3here/pakz" target="_blank" rel="noreferrer">
             VIEW SOURCE <ArrowUpRight size={16} />
           </a>
         </div>
         <div className="hp-proof-grid">
-          <article><span>01</span><Radio /><h3>REQUEST</h3><p>The purchase fixes a future Robinhood block before its hash exists.</p></article>
-          <article><span>02</span><ShieldCheck /><h3>WAIT</h3><p>Funds and all seven possible rewards remain reserved while the block is produced.</p></article>
-          <article><span>03</span><Dices /><h3>FINALIZE</h3><p>Anyone can use the fixed block hash to calculate the same four random words.</p></article>
-          <article><span>04</span><Zap /><h3>BETA LIMIT</h3><p>This is not VRF. Robinhood validators or block producers may influence block production.</p></article>
+          <article><span>01</span><Radio /><h3>OPEN</h3><p>Your transaction locks the opening to a future Robinhood block.</p></article>
+          <article><span>02</span><ShieldCheck /><h3>RESERVE</h3><p>The contract keeps enough inventory for every possible outcome.</p></article>
+          <article><span>03</span><Dices /><h3>REVEAL</h3><p>Once the block exists, anyone can finalize the same draw.</p></article>
+          <article><span>04</span><Zap /><h3>BETA NOTE</h3><p>The draw is transparent and auditable. A future release can upgrade it to VRF.</p></article>
         </div>
       </section>
 
       <section id="transparency" className="hp-transparency" aria-labelledby="transparency-heading">
         <div className="hp-proof-head">
           <div>
-            <span className="hp-section-label">FULLY ONCHAIN / ROBINHOOD CHAIN 4663</span>
-            <h2 id="transparency-heading">DEPLOYED HISTORY.<br />VERIFIABLE ADDRESSES.</h2>
+            <span className="hp-section-label">ONCHAIN RECORD / ROBINHOOD CHAIN 4663</span>
+            <h2 id="transparency-heading">ADDRESSES YOU CAN CHECK.</h2>
           </div>
-          <a href="https://github.com/Jaredweb3here/hoodpackz" target="_blank" rel="noreferrer">
+          <a href="https://github.com/Jaredweb3here/pakz" target="_blank" rel="noreferrer">
             VIEW SOURCE <ArrowUpRight size={16} />
           </a>
         </div>
         <div className="hp-contract-grid">
           {([
-            { label: "Legacy HoodPackzCore V2", addr: "0x5337Ad84857E433b7d57Ca1130079044Ef37e436", note: "Paused legacy deployment; not used for new sales" },
-            { label: "Archived ThresholdRandomBeacon", addr: "0x2B4547eAf629dE637C28146C3104e83f1F0AE7dc", note: "Experimental 4-of-7 path retained in source" },
+            { label: "Legacy core", addr: "0x5337Ad84857E433b7d57Ca1130079044Ef37e436", note: "Paused historical deployment; not used for new openings" },
+            { label: "Archived beacon", addr: "0x2B4547eAf629dE637C28146C3104e83f1F0AE7dc", note: "Experimental randomness path retained for review" },
           ] as const).map(({ label, addr, note }) => (
             <a
               key={addr}
@@ -781,14 +781,14 @@ export default function HoodPackzPage() {
       <footer className="hp-footer">
         <div className="hp-footer-top">
           <div>
-            <span className="hp-section-label">THE DROP LIVES ONCHAIN</span>
-            <h2>PACK THE BLOCK.<br />CLAIM THE CITY.</h2>
+            <span className="hp-section-label">LIVE ON ROBINHOOD CHAIN</span>
+            <h2>OPEN THE DROP.<br />CLAIM THE PULL.</h2>
           </div>
           <nav aria-label="Footer navigation">
-            <a href="#packs">Packs <ArrowUpRight size={18} /></a>
-            <a href="#assets">Token pool <ArrowUpRight size={18} /></a>
+            <a href="#packs">Drops <ArrowUpRight size={18} /></a>
+            <a href="#assets">Reward pool <ArrowUpRight size={18} /></a>
             <a href="https://x.com/pakzdotfun" target="_blank" rel="noreferrer">X / @pakzdotfun <ArrowUpRight size={18} /></a>
-            <a href="https://github.com/Jaredweb3here/hoodpackz" target="_blank" rel="noreferrer">Source <Code2 size={18} /></a>
+            <a href="https://github.com/Jaredweb3here/pakz" target="_blank" rel="noreferrer">Source <Code2 size={18} /></a>
           </nav>
         </div>
         <div className="hp-footer-word" aria-hidden="true">PAKZ.FUN</div>

@@ -102,10 +102,10 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
           >
             <header className="hp-demo-head">
               <div>
-                <span>TEST OPENING / NO WALLET</span>
-                <strong id="demo-opening-title">{pack.name.toUpperCase()} PACK</strong>
+                <span>PREVIEW OPENING / NO WALLET</span>
+                <strong id="demo-opening-title">{pack.name.toUpperCase()} DROP</strong>
               </div>
-              <button type="button" onClick={onClose} aria-label="Close test opening">
+              <button type="button" onClick={onClose} aria-label="Close preview opening">
                 <X size={18} />
               </button>
             </header>
@@ -114,8 +114,8 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
               <div className="hp-demo-grid" aria-hidden="true" />
               <div className="hp-demo-phase-label" aria-live="polite">
                 <span>0{["sealed", "tearing", "shuffling", "revealing", "result"].indexOf(phase) + 1}</span>
-                {phase === "sealed" && "PACK LOCKED"}
-                {phase === "tearing" && "BREAKING SEAL"}
+                {phase === "sealed" && "DROP SEALED"}
+                {phase === "tearing" && "OPENING SEAL"}
                 {phase === "shuffling" && "DRAWING 3 OF 7"}
                 {phase === "revealing" && `REVEALING ${revealed} / 3`}
                 {phase === "result" && "PULL COMPLETE"}
@@ -139,7 +139,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                         : { opacity: { duration: 0.5 }, scale: { duration: 0.7 }, y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" } }
                     }
                   >
-                    <Image src={pack.image} alt={`${pack.name} pack`} fill sizes="(max-width: 600px) 58vw, 300px" priority />
+                    <Image src={pack.image} alt={`${pack.name} drop`} fill sizes="(max-width: 600px) 58vw, 300px" priority />
                     {phase === "tearing" && <motion.i initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.55 }} />}
                   </motion.div>
                 )}
@@ -171,7 +171,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                           }
                         >
                           <div className="hp-demo-card-back">
-                            <span>HP</span>
+                            <span>PZ</span>
                             <small>SEALED SLOT 0{index + 1}</small>
                           </div>
                           <div className="hp-demo-card-front" style={{ "--token-accent": token.color } as CSSProperties}>
@@ -205,10 +205,10 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
             </div>
 
             <footer className="hp-demo-footer">
-              <p>{phase === "result" ? "Demo result only. No funds moved and no onchain opening was created." : "Simulating the presentation layer. No transaction will be requested."}</p>
+              <p>{phase === "result" ? "Preview only. No funds moved and no onchain opening was created." : "Previewing the reveal. No wallet signature will be requested."}</p>
               {phase === "result" && (
                 <button type="button" onClick={() => setRun((current) => current + 1)}>
-                  <RotateCcw size={15} /> OPEN ANOTHER TEST PACK
+                  <RotateCcw size={15} /> PREVIEW ANOTHER DROP
                 </button>
               )}
             </footer>

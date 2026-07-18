@@ -27,7 +27,7 @@ export const HOODPACKZ_TOKENS = [
   },
   {
     address: "0x4a380618777eed8d513bcd6e983df3c5d2ba7777",
-    name: "Real World Asses",
+    name: "Real World Assets",
     ticker: "RWA",
     decimals: 18,
     color: "#68d391",
