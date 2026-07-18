@@ -356,7 +356,7 @@ export default function HoodPackzPage() {
           <a href="#assets">TOKENS</a>
           <a href="#proof">PROOF</a>
           <a href="#economics">ECONOMICS</a>
-          <a href="https://x.com/pakzdotfun" target="_blank" rel="noreferrer">X / @PAKZDOTFUN</a>
+          <a href="https://x.com/pakdotfun" target="_blank" rel="noreferrer">X / @PAKDOTFUN</a>
         </nav>
         <HoodWalletButton />
       </header>
@@ -782,7 +782,7 @@ export default function HoodPackzPage() {
           <nav aria-label="Footer navigation">
             <a href="#packs">Drops <ArrowUpRight size={18} /></a>
             <a href="#assets">Reward pool <ArrowUpRight size={18} /></a>
-            <a href="https://x.com/pakzdotfun" target="_blank" rel="noreferrer">X / @pakzdotfun <ArrowUpRight size={18} /></a>
+            <a href="https://x.com/pakdotfun" target="_blank" rel="noreferrer">X / @pakdotfun <ArrowUpRight size={18} /></a>
           </nav>
         </div>
         <div className="hp-footer-word" aria-hidden="true">PAKZ.FUN</div>
@@ -790,7 +790,7 @@ export default function HoodPackzPage() {
           <p />
           <p>ROBINHOOD CHAIN / 4663 / BETA</p>
           <div>
-            <a href="https://x.com/pakzdotfun" target="_blank" rel="noreferrer" aria-label="Pakz.fun on X">X</a>
+            <a href="https://x.com/pakdotfun" target="_blank" rel="noreferrer" aria-label="Pakz.fun on X">X</a>
             <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noreferrer" aria-label="Robinhood Chain explorer"><ExternalLink size={18} /></a>
           </div>
         </div>
