@@ -81,6 +81,15 @@ function formatUsd(value: number) {
   return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+async function assertPackInventoryAvailable(tier: number) {
+  const response = await fetch(`/api/pack-inventory?tier=${tier}`, { cache: "no-store" });
+  if (!response.ok) return;
+  const inventory = (await response.json()) as { canOpen?: boolean; missing?: string[] };
+  if (inventory.canOpen === false && inventory.missing?.length) {
+    throw new Error(`Pack inventory sold out. Refill ${inventory.missing.join(", ")} before opening more packs.`);
+  }
+}
+
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
@@ -283,6 +292,7 @@ export default function HoodPackzPage() {
 
     try {
       setOpeningState("submitting");
+      await assertPackInventoryAvailable(tierIndex);
       const result = await submitHoodPackzOpening(tierIndex, tier.price, address, () => {
         if (walletMatches(address)) setOpeningState("approving");
       });
