@@ -37,6 +37,7 @@ import {
   type OpeningSubmission,
 } from "@/lib/hoodpackz-v2";
 import { HOODPACKZ_TOKENS, tokenExplorerUrl } from "@/lib/hoodpackz-tokens";
+import { useLiveTokenPrices } from "@/lib/use-live-token-prices";
 import { HoodPackzBrand } from "@/components/brand/hoodpackz-brand";
 import { DemoPackOpening } from "@/components/hoodpackz/demo-pack-opening";
 
@@ -64,21 +65,16 @@ const TIERS = [
   },
 ] as const;
 
-const TOKEN_VALUE_USDG: Record<string, number> = {
-  CASHCAT: 1.82,
-  Index: 2.45,
-  JUGGERNAUT: 3.78,
-  RWA: 1.36,
-  PONS: 0.92,
-  TENDIES: 2.14,
-  WALLET: 4.2,
-};
-
-function tokenValueUsd(ticker: string, amount?: bigint, decimals = 18) {
-  const base = TOKEN_VALUE_USDG[ticker] ?? 1.11;
-  if (amount === undefined) return base;
+function tokenValueUsd(
+  address: string,
+  amount: bigint | undefined,
+  decimals: number,
+  prices: ReturnType<typeof useLiveTokenPrices>,
+) {
+  const price = prices.get(address.toLowerCase())?.priceUsd;
+  if (price == null || amount === undefined) return null;
   const quantity = Number(formatOpeningAmount(amount, decimals));
-  return Number.isFinite(quantity) ? quantity * base : base;
+  return Number.isFinite(quantity) ? quantity * price : null;
 }
 
 function formatUsd(value: number) {
@@ -198,6 +194,7 @@ export default function HoodPackzPage() {
   const [trackedOpeningId, setTrackedOpeningId] = useState<bigint | null>(null);
   const [opening, setOpening] = useState<HoodPackzOpening | null>(null);
   const [demoOpen, setDemoOpen] = useState(false);
+  const livePrices = useLiveTokenPrices();
   const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const heroPackY = useTransform(scrollYProgress, [0, 0.22], [0, prefersReducedMotion ? 0 : -72]);
@@ -207,6 +204,7 @@ export default function HoodPackzPage() {
   const isLive = Boolean(HOODPACKZ_V2_ADDRESS) && HOODPACKZ_PACK_SALES_LIVE;
   const tierIsLive = isLive && tierIndex === 0;
   const canRecover = HOODPACKZ_V2_RECOVERY_AVAILABLE;
+  const livePriceCount = [...livePrices.values()].filter((price) => price.status === "live").length;
 
   function walletMatches(expectedAddress: `0x${string}`) {
     return walletContext.current.address === expectedAddress.toLowerCase();
@@ -411,6 +409,7 @@ export default function HoodPackzPage() {
           <div className="hp-trust-row">
             <span><ShieldCheck size={15} /> FUNDED BEFORE REVEAL</span>
             <span><Dices size={15} /> SLOW REVEAL</span>
+            <span><Radio size={15} /> {livePriceCount ? `${livePriceCount}/7 RPC PRICES` : "RPC PRICES LOADING"}</span>
           </div>
         </motion.div>
 
@@ -619,14 +618,18 @@ export default function HoodPackzPage() {
                         (item) => item.address.toLowerCase() === prizeAddress.toLowerCase(),
                       );
                       const claimed = (opening.claimedPrizes & (1 << index)) !== 0;
-                      const value = token ? tokenValueUsd(token.ticker, opening.amounts[index], token.decimals) : 0;
+                      const value = token
+                        ? tokenValueUsd(token.address, opening.amounts[index], token.decimals, livePrices)
+                        : null;
                       return (
                         <div key={prizeAddress} className={claimed ? "claimed" : ""}>
                           {token && <Image src={token.logo} alt="" width={30} height={30} />}
                           <span>
                             <strong>{token?.ticker ?? shortAddress(prizeAddress)}</strong>
                             <small>{formatOpeningAmount(opening.amounts[index], token?.decimals ?? 18)}</small>
-                            <small className="hp-prize-value">{formatUsd(value)} floor</small>
+                            <small className="hp-prize-value">
+                              {value == null ? "NO LIVE QUOTE" : `${formatUsd(value)} RPC spot`}
+                            </small>
                           </span>
                           <button
                             type="button"
@@ -647,12 +650,21 @@ export default function HoodPackzPage() {
                   <div className="hp-pack-result-total">
                     <span>Total pack value</span>
                     <strong>
-                      {formatUsd(opening.prizes.reduce((sum, prizeAddress, index) => {
+                      {(() => {
+                        let total = 0;
+                        let complete = true;
+                        opening.prizes.forEach((prizeAddress, index) => {
                         const token = HOODPACKZ_TOKENS.find(
                           (item) => item.address.toLowerCase() === prizeAddress.toLowerCase(),
                         );
-                        return sum + (token ? tokenValueUsd(token.ticker, opening.amounts[index], token.decimals) : 0);
-                      }, 0))}
+                          const value = token
+                            ? tokenValueUsd(token.address, opening.amounts[index], token.decimals, livePrices)
+                            : null;
+                          if (value == null) complete = false;
+                          else total += value;
+                        });
+                        return complete ? formatUsd(total) : "NO LIVE QUOTE";
+                      })()}
                     </strong>
                   </div>
                   <div className="hp-pack-result-actions">

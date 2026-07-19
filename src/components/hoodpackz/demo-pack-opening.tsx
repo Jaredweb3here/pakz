@@ -5,29 +5,18 @@ import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RotateCcw, X } from "lucide-react";
 import { HOODPACKZ_TOKENS } from "@/lib/hoodpackz-tokens";
+import { useLiveTokenPrices } from "@/lib/use-live-token-prices";
 
 type DemoPhase = "sealed" | "tearing" | "shuffling" | "revealing" | "result";
 
-const DEMO_VALUES: Record<string, number> = {
-  CASHCAT: 8.6,
-  Index: 11.25,
-  JUGGERNAUT: 28.8,
-  RWA: 6.45,
-  PONS: 4.2,
-  TENDIES: 14.75,
-  WALLET: 36.4,
-};
-
-function demoValue(ticker: string, index: number) {
-  return (DEMO_VALUES[ticker] ?? 7.5) + index * 1.35;
+function formatDemoUsd(value: number | null) {
+  return value == null
+    ? "NO LIVE QUOTE"
+    : `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-function formatDemoUsd(value: number) {
-  return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function CountUpValue({ value, active }: { value: number; active: boolean }) {
-  const [displayValue, setDisplayValue] = useState(active ? value : 0);
+function CountUpValue({ value, active }: { value: number | null; active: boolean }) {
+  const [displayValue, setDisplayValue] = useState<number | null>(0);
 
   useEffect(() => {
     if (!active) {
@@ -35,7 +24,12 @@ function CountUpValue({ value, active }: { value: number; active: boolean }) {
       return;
     }
 
-    const duration = 920;
+    if (value == null) {
+      setDisplayValue(null);
+      return;
+    }
+
+    const duration = 1250;
     const startedAt = performance.now();
     let frame = 0;
 
@@ -80,9 +74,12 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
   const [revealed, setRevealed] = useState(0);
   const [run, setRun] = useState(0);
   const [tokens, setTokens] = useState(() => HOODPACKZ_TOKENS.slice(0, 3));
-  const values = tokens.map((token, index) => demoValue(token.ticker, index));
-  const totalValue = values.reduce((sum, value) => sum + value, 0);
-  const legendaryIndex = values.indexOf(Math.max(...values));
+  const [decision, setDecision] = useState<"keep" | "sell" | null>(null);
+  const livePrices = useLiveTokenPrices();
+  const values = tokens.map((token) => livePrices.get(token.address.toLowerCase())?.priceUsd ?? null);
+  const liveValues = values.filter((value): value is number => value != null);
+  const totalValue = liveValues.length === values.length ? liveValues.reduce((sum, value) => sum + value, 0) : null;
+  const legendaryIndex = liveValues.length ? values.indexOf(Math.max(...liveValues)) : 0;
 
   useEffect(() => {
     if (!open) return;
@@ -90,6 +87,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
     const nextTokens = drawDemoTokens();
     const resetTimer = window.setTimeout(() => {
       setTokens(nextTokens);
+      setDecision(null);
       setRevealed(prefersReducedMotion ? 3 : 0);
       setPhase(prefersReducedMotion ? "result" : "sealed");
     }, 0);
@@ -226,7 +224,11 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                           </div>
                           <div className="hp-demo-card-front" style={{ "--token-accent": token.color } as CSSProperties}>
                             <span className="hp-demo-card-number">0{index + 1} / 03</span>
-                            {legendary && <span className="hp-demo-rarity">LEGENDARY</span>}
+                            {legendary && <span className="hp-demo-rarity">LEGENDARY / PSA 10</span>}
+                            <span className="hp-demo-slab">
+                              <strong>PSA</strong>
+                              <small>PACKY CERTIFIED<br />ONCHAIN PULL</small>
+                            </span>
                             <Image src={token.logo} alt="" width={112} height={112} />
                             <div>
                               <small>{pack.label} PULL</small>
@@ -261,8 +263,12 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
               {phase === "result" && (
                 <div className="hp-demo-result-bar" aria-label="Preview result actions">
                   <span>Pack value <strong><CountUpValue value={totalValue} active /></strong></span>
-                  <button type="button">Claim Tokens</button>
-                  <button type="button">Sell Pack Back</button>
+                  <button type="button" className={decision === "keep" ? "selected" : ""} onClick={() => setDecision("keep")}>
+                    {decision === "keep" ? "KEEPING PACK" : "KEEP / CLAIM TOKENS"}
+                  </button>
+                  <button type="button" className={decision === "sell" ? "selected" : ""} onClick={() => setDecision("sell")}>
+                    {decision === "sell" ? "SELL REQUEST STAGED" : "SELL PACK BACK"}
+                  </button>
                 </div>
               )}
               {phase === "result" && (
