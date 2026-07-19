@@ -8,6 +8,51 @@ import { HOODPACKZ_TOKENS } from "@/lib/hoodpackz-tokens";
 
 type DemoPhase = "sealed" | "tearing" | "shuffling" | "revealing" | "result";
 
+const DEMO_VALUES: Record<string, number> = {
+  CASHCAT: 8.6,
+  Index: 11.25,
+  JUGGERNAUT: 28.8,
+  RWA: 6.45,
+  PONS: 4.2,
+  TENDIES: 14.75,
+  WALLET: 36.4,
+};
+
+function demoValue(ticker: string, index: number) {
+  return (DEMO_VALUES[ticker] ?? 7.5) + index * 1.35;
+}
+
+function formatDemoUsd(value: number) {
+  return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function CountUpValue({ value, active }: { value: number; active: boolean }) {
+  const [displayValue, setDisplayValue] = useState(active ? value : 0);
+
+  useEffect(() => {
+    if (!active) {
+      setDisplayValue(0);
+      return;
+    }
+
+    const duration = 920;
+    const startedAt = performance.now();
+    let frame = 0;
+
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayValue(value * eased);
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [active, value]);
+
+  return <>{formatDemoUsd(displayValue)}</>;
+}
+
 interface DemoPackOpeningProps {
   open: boolean;
   pack: {
@@ -35,6 +80,9 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
   const [revealed, setRevealed] = useState(0);
   const [run, setRun] = useState(0);
   const [tokens, setTokens] = useState(() => HOODPACKZ_TOKENS.slice(0, 3));
+  const values = tokens.map((token, index) => demoValue(token.ticker, index));
+  const totalValue = values.reduce((sum, value) => sum + value, 0);
+  const legendaryIndex = values.indexOf(Math.max(...values));
 
   useEffect(() => {
     if (!open) return;
@@ -49,15 +97,15 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
     if (prefersReducedMotion) return () => window.clearTimeout(resetTimer);
 
     const timers = [
-      window.setTimeout(() => setPhase("tearing"), 1050),
-      window.setTimeout(() => setPhase("shuffling"), 1950),
+      window.setTimeout(() => setPhase("tearing"), 950),
+      window.setTimeout(() => setPhase("shuffling"), 2100),
       window.setTimeout(() => {
         setPhase("revealing");
         setRevealed(1);
-      }, 3150),
-      window.setTimeout(() => setRevealed(2), 3780),
-      window.setTimeout(() => setRevealed(3), 4410),
-      window.setTimeout(() => setPhase("result"), 5150),
+      }, 4200),
+      window.setTimeout(() => setRevealed(2), 5100),
+      window.setTimeout(() => setRevealed(3), 6000),
+      window.setTimeout(() => setPhase("result"), 7100),
     ];
 
     return () => {
@@ -102,8 +150,8 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
           >
             <header className="hp-demo-head">
               <div>
-                <span>PREVIEW OPENING / NO WALLET</span>
-                <strong id="demo-opening-title">{pack.name.toUpperCase()} DROP</strong>
+                <span>PACK REVEAL / NO WALLET</span>
+                <strong id="demo-opening-title">{pack.name.toUpperCase()} PACK</strong>
               </div>
               <button type="button" onClick={onClose} aria-label="Close preview opening">
                 <X size={18} />
@@ -114,11 +162,11 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
               <div className="hp-demo-grid" aria-hidden="true" />
               <div className="hp-demo-phase-label" aria-live="polite">
                 <span>0{["sealed", "tearing", "shuffling", "revealing", "result"].indexOf(phase) + 1}</span>
-                {phase === "sealed" && "DROP SEALED"}
+                {phase === "sealed" && "PACK SEALED"}
                 {phase === "tearing" && "OPENING SEAL"}
-                {phase === "shuffling" && "DRAWING 3 OF 7"}
+                {phase === "shuffling" && "SLIDING 3 CARDS"}
                 {phase === "revealing" && `REVEALING ${revealed} / 3`}
-                {phase === "result" && "PULL COMPLETE"}
+                {phase === "result" && "CHOOSE KEEP OR SELL"}
               </div>
 
               <AnimatePresence mode="wait">
@@ -139,7 +187,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                         : { opacity: { duration: 0.5 }, scale: { duration: 0.7 }, y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" } }
                     }
                   >
-                    <Image src={pack.image} alt={`${pack.name} drop`} fill sizes="(max-width: 600px) 58vw, 300px" priority />
+                    <Image src={pack.image} alt={`${pack.name} pack`} fill sizes="(max-width: 600px) 58vw, 300px" priority />
                     {phase === "tearing" && <motion.i initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.55 }} />}
                   </motion.div>
                 )}
@@ -154,33 +202,37 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                   >
                     {tokens.map((token, index) => {
                       const isRevealed = phase === "result" || (phase === "revealing" && revealed > index);
+                      const value = values[index];
+                      const legendary = index === legendaryIndex;
                       return (
                         <motion.article
                           key={`${run}-${token.address}`}
-                          className={isRevealed ? "revealed" : ""}
-                          initial={{ y: 70, opacity: 0, rotate: (index - 1) * 7 }}
+                          className={`${isRevealed ? "revealed" : ""} ${legendary ? "legendary" : ""}`}
+                          initial={{ x: 0, y: 16, opacity: 0, rotate: 0 }}
                           animate={
                             phase === "shuffling"
-                              ? { y: [0, -18, 6, 0], opacity: 1, rotate: [(index - 1) * 7, (1 - index) * 5, (index - 1) * 3] }
-                              : { y: 0, opacity: 1, rotate: 0 }
+                              ? { x: (index - 1) * 210, y: [0, -10, 0], opacity: 1, rotate: (index - 1) * 4 }
+                              : { x: 0, y: 0, opacity: 1, rotate: 0 }
                           }
                           transition={
                             phase === "shuffling"
-                              ? { duration: 0.62, repeat: Infinity, delay: index * 0.08, ease: "easeInOut" }
-                              : { duration: 0.55, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }
+                              ? { duration: 1.25, delay: index * 0.18, ease: [0.16, 1, 0.3, 1] }
+                              : { duration: 0.75, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }
                           }
                         >
                           <div className="hp-demo-card-back">
-                            <span>PZ</span>
+                            <span>PKY</span>
                             <small>SEALED SLOT 0{index + 1}</small>
                           </div>
                           <div className="hp-demo-card-front" style={{ "--token-accent": token.color } as CSSProperties}>
                             <span className="hp-demo-card-number">0{index + 1} / 03</span>
+                            {legendary && <span className="hp-demo-rarity">LEGENDARY</span>}
                             <Image src={token.logo} alt="" width={112} height={112} />
                             <div>
                               <small>{pack.label} PULL</small>
                               <strong>{token.ticker}</strong>
                               <p>{token.name}</p>
+                              <b><CountUpValue value={value} active={isRevealed} /></b>
                             </div>
                           </div>
                         </motion.article>
@@ -205,10 +257,17 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
             </div>
 
             <footer className="hp-demo-footer">
-              <p>{phase === "result" ? "Preview only. No funds moved and no onchain opening was created." : "Previewing the reveal. No wallet signature will be requested."}</p>
+              <p>{phase === "result" ? "Preview only. No funds moved and no onchain opening was created." : "Three cards slide out, reveal one by one, then the pack gets a total value."}</p>
+              {phase === "result" && (
+                <div className="hp-demo-result-bar" aria-label="Preview result actions">
+                  <span>Pack value <strong><CountUpValue value={totalValue} active /></strong></span>
+                  <button type="button">Claim Tokens</button>
+                  <button type="button">Sell Pack Back</button>
+                </div>
+              )}
               {phase === "result" && (
                 <button type="button" onClick={() => setRun((current) => current + 1)}>
-                  <RotateCcw size={15} /> PREVIEW ANOTHER DROP
+                  <RotateCcw size={15} /> PREVIEW ANOTHER PACK
                 </button>
               )}
             </footer>
