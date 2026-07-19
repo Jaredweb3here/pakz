@@ -4,15 +4,27 @@ import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RotateCcw, X } from "lucide-react";
-import { HOODPACKZ_TOKENS } from "@/lib/hoodpackz-tokens";
+import { HOODPACKZ_TOKENS, PUBLIC_TOKEN_PRICE_USD_BY_TICKER } from "@/lib/hoodpackz-tokens";
 import { useLiveTokenPrices } from "@/lib/use-live-token-prices";
 
 type DemoPhase = "sealed" | "tearing" | "shuffling" | "revealing" | "result";
+const DEMO_VALUE_MULTIPLIER = 1.4;
+const DEMO_PULL_WEIGHTS = [0.31, 0.42, 0.27] as const;
 
 function formatDemoUsd(value: number | null) {
   return value == null
     ? "NO LIVE QUOTE"
     : `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function formatDemoAmount(value: number) {
+  return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
+function roundDemoAmount(value: number) {
+  if (value >= 5000) return Math.max(100, Math.round(value / 100) * 100);
+  if (value >= 500) return Math.max(10, Math.round(value / 10) * 10);
+  return Math.max(1, Math.round(value));
 }
 
 function CountUpValue({ value, active }: { value: number | null; active: boolean }) {
@@ -53,6 +65,7 @@ interface DemoPackOpeningProps {
     name: string;
     label: string;
     image: string;
+    price: number;
   };
   onClose: () => void;
 }
@@ -76,10 +89,21 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
   const [tokens, setTokens] = useState(() => HOODPACKZ_TOKENS.slice(0, 3));
   const [decision, setDecision] = useState<"keep" | "sell" | null>(null);
   const livePrices = useLiveTokenPrices();
-  const values = tokens.map((token) => livePrices.get(token.address.toLowerCase())?.priceUsd ?? null);
-  const liveValues = values.filter((value): value is number => value != null);
-  const totalValue = liveValues.length === values.length ? liveValues.reduce((sum, value) => sum + value, 0) : null;
-  const legendaryIndex = liveValues.length ? values.indexOf(Math.max(...liveValues)) : 0;
+  const targetTotal = pack.price * DEMO_VALUE_MULTIPLIER;
+  const pulls = tokens.map((token, index) => {
+    const unitPrice = livePrices.get(token.address.toLowerCase())?.priceUsd
+      ?? PUBLIC_TOKEN_PRICE_USD_BY_TICKER[token.ticker.toUpperCase()]
+      ?? null;
+    const amount = unitPrice == null ? null : roundDemoAmount((targetTotal * DEMO_PULL_WEIGHTS[index]) / unitPrice);
+    return {
+      amount,
+      unitPrice,
+      value: amount == null || unitPrice == null ? null : amount * unitPrice,
+    };
+  });
+  const pullValues = pulls.map((pull) => pull.value).filter((value): value is number => value != null);
+  const totalValue = pullValues.length === pulls.length ? pullValues.reduce((sum, value) => sum + value, 0) : null;
+  const legendaryIndex = pullValues.length ? pulls.findIndex((pull) => pull.value === Math.max(...pullValues)) : 0;
 
   useEffect(() => {
     if (!open) return;
@@ -211,7 +235,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                   >
                     {tokens.map((token, index) => {
                       const isRevealed = phase === "result" || (phase === "revealing" && revealed > index);
-                      const value = values[index];
+                      const pull = pulls[index];
                       const legendary = index === legendaryIndex;
                       return (
                         <motion.article
@@ -257,7 +281,12 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                               <small>{pack.label} PULL</small>
                               <strong>{token.ticker}</strong>
                               <p>{token.name}</p>
-                              <b><CountUpValue value={value} active={isRevealed} /></b>
+                              <small className="hp-demo-pull-math">
+                                {pull.amount == null || pull.unitPrice == null
+                                  ? "VALUE LOADING"
+                                  : `${formatDemoAmount(pull.amount)} ${token.ticker.toUpperCase()} x ${formatDemoUsd(pull.unitPrice)}`}
+                              </small>
+                              <b><CountUpValue value={pull.value} active={isRevealed} /></b>
                             </div>
                           </div>
                         </motion.article>

@@ -1,21 +1,12 @@
 import { NextResponse } from "next/server";
 import { createPublicClient, http } from "viem";
-import { HOODPACKZ_TOKENS } from "@/lib/hoodpackz-tokens";
+import { HOODPACKZ_TOKENS, PUBLIC_TOKEN_PRICE_USD_BY_TICKER } from "@/lib/hoodpackz-tokens";
 import { ROBINHOOD_CHAIN_RPC_URL, robinhoodChain } from "@/lib/chain";
 
 export const dynamic = "force-dynamic";
 
 const ADAPTER_ADDRESS = "0x0b17df805a8c0921cb1b141f4515612028d8e4a7" as const;
 const USDG_ADDRESS = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168" as const;
-const PUBLIC_PRICE_USD_BY_TICKER: Record<string, number> = {
-  CASHCAT: 0.0596,
-  INDEX: 0.0161,
-  JUGGERNAUT: 0.00343,
-  PONS: 0.0167,
-  RWA: 0.00114,
-  TENDIES: 0.0246,
-  WALLET: 0.00871,
-};
 const quoteAbi = [
   {
     type: "function",
@@ -55,7 +46,7 @@ export async function GET() {
           source: "Robinhood RPC / Uniswap v4 spot quote",
         };
       } catch {
-        const publicPrice = PUBLIC_PRICE_USD_BY_TICKER[token.ticker.toUpperCase()];
+        const publicPrice = PUBLIC_TOKEN_PRICE_USD_BY_TICKER[token.ticker.toUpperCase()];
         if (publicPrice !== undefined) {
           return {
             address: token.address,

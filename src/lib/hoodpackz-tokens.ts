@@ -59,6 +59,16 @@ export const HOODPACKZ_TOKENS = [
   },
 ] as const;
 
+export const PUBLIC_TOKEN_PRICE_USD_BY_TICKER: Record<string, number> = {
+  CASHCAT: 0.0596,
+  INDEX: 0.0161,
+  JUGGERNAUT: 0.00343,
+  PONS: 0.0167,
+  RWA: 0.00114,
+  TENDIES: 0.0246,
+  WALLET: 0.00871,
+};
+
 export function tokenExplorerUrl(address: string) {
   return `${ROBINHOOD_CHAIN_EXPLORER_URL}/token/${address}`;
 }

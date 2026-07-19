@@ -618,6 +618,7 @@ export default function HoodPackzPage() {
                         (item) => item.address.toLowerCase() === prizeAddress.toLowerCase(),
                       );
                       const claimed = (opening.claimedPrizes & (1 << index)) !== 0;
+                      const unitPrice = token ? livePrices.get(token.address.toLowerCase())?.priceUsd : null;
                       const value = token
                         ? tokenValueUsd(token.address, opening.amounts[index], token.decimals, livePrices)
                         : null;
@@ -627,7 +628,10 @@ export default function HoodPackzPage() {
                           {token && <Image src={token.logo} alt="" width={30} height={30} />}
                           <span>
                             <strong>{token?.ticker ?? shortAddress(prizeAddress)}</strong>
-                            <small>{formatOpeningAmount(opening.amounts[index], token?.decimals ?? 18)}</small>
+                            <small>
+                              {formatOpeningAmount(opening.amounts[index], token?.decimals ?? 18)}{token ? ` ${token.ticker.toUpperCase()}` : ""}
+                              {unitPrice == null ? "" : ` x ${formatUsd(unitPrice)}`}
+                            </small>
                             <small className="hp-prize-value">
                               {value == null
                                 ? "NO LIVE QUOTE"
