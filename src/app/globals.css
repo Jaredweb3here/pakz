@@ -2952,6 +2952,8 @@ body {
   display: flex;
   justify-self: end;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 18px;
 }
 

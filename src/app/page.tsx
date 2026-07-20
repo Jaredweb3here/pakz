@@ -862,6 +862,7 @@ export default function HoodPackzPage() {
           <p>ROBINHOOD CHAIN / 4663 / BETA</p>
           <div>
             <a href="https://x.com/paxzdotfun" target="_blank" rel="noreferrer" aria-label="Paxz on X">X</a>
+            <HoodWalletButton />
             <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noreferrer" aria-label="Robinhood Chain explorer"><ExternalLink size={18} /></a>
           </div>
         </div>
