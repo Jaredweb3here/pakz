@@ -187,7 +187,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                 {(phase === "sealed" || phase === "tearing") && (
                   <motion.div
                     key="pack"
-                    className="hp-demo-pack"
+                    className={`hp-demo-pack ${pack.image === "/trencher1.png" ? "hp-demo-pack-square" : ""}`}
                     initial={{ opacity: 0, scale: 0.84, rotate: -4 }}
                     animate={
                       phase === "tearing"

@@ -46,7 +46,7 @@ const TIERS = [
     name: "Trencher",
     price: 5,
     label: "PACK 01",
-    image: "/trencher-pack.png",
+    image: "/trencher1.png",
     note: "Start here. Three real tokens, locked to one onchain draw.",
   },
   {
@@ -427,49 +427,6 @@ export default function HoodPackzPage() {
           </div>
         </motion.div>
 
-        <motion.div
-          className="hp-pack-gallery"
-          style={{ y: heroPackY }}
-          initial={prefersReducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.9, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-          role="radiogroup"
-          aria-label="Choose a Paxz pack"
-        >
-          {TIERS.map((option, index) => (
-            <motion.button
-              id={`pack-tier-${index}`}
-              key={option.name}
-              type="button"
-              role="radio"
-              aria-checked={tierIndex === index}
-              tabIndex={tierIndex === index ? 0 : -1}
-              className={`hp-pack-card ${tierIndex === index ? "active" : ""}`}
-              onClick={() => selectTier(index)}
-              onKeyDown={(event) => selectTierByKey(event, index)}
-              whileHover={prefersReducedMotion ? undefined : { y: -12 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
-              transition={{ type: "spring", stiffness: 240, damping: 24 }}
-            >
-              <span className="hp-pack-card-index">0{index + 1} / {option.label}</span>
-              <span className="hp-pack-card-art">
-                <Image
-                  src={option.image}
-                  alt={`${option.name} Paxz pack`}
-                  width={1024}
-                  height={1536}
-                  priority={index === 1}
-                  sizes="(max-width: 760px) 78vw, (max-width: 1100px) 32vw, 27vw"
-                />
-              </span>
-              <span className="hp-pack-card-meta">
-                <span><strong>{option.name}</strong><small>{option.note}</small></span>
-                <b>${option.price}<small> USDG</small></b>
-              </span>
-            </motion.button>
-          ))}
-        </motion.div>
-
         <div className="hp-control-panel">
           <div className="hp-panel-head">
             <div>
@@ -712,6 +669,49 @@ export default function HoodPackzPage() {
             </div>
           )}
         </div>
+
+        <motion.div
+          className="hp-pack-gallery"
+          style={{ y: heroPackY }}
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.9, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          role="radiogroup"
+          aria-label="Choose a Paxz pack"
+        >
+          {TIERS.map((option, index) => (
+            <motion.button
+              id={`pack-tier-${index}`}
+              key={option.name}
+              type="button"
+              role="radio"
+              aria-checked={tierIndex === index}
+              tabIndex={tierIndex === index ? 0 : -1}
+              className={`hp-pack-card ${tierIndex === index ? "active" : ""}`}
+              onClick={() => selectTier(index)}
+              onKeyDown={(event) => selectTierByKey(event, index)}
+              whileHover={prefersReducedMotion ? undefined : { y: -12 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
+              transition={{ type: "spring", stiffness: 240, damping: 24 }}
+            >
+              <span className="hp-pack-card-index">PAXZ.FUN / {option.label}</span>
+              <span className={`hp-pack-card-art ${index === 0 ? "hp-pack-card-art-square" : ""}`}>
+                <Image
+                  src={option.image}
+                  alt={`${option.name} Paxz pack`}
+                  width={index === 0 ? 1254 : 1024}
+                  height={index === 0 ? 1254 : 1536}
+                  priority={index === 0}
+                  sizes="(max-width: 760px) 78vw, (max-width: 1100px) 32vw, 27vw"
+                />
+              </span>
+              <span className="hp-pack-card-meta">
+                <span><strong>{option.name}</strong><small>{option.note}</small></span>
+                <b>${option.price}<small> USDG</small></b>
+              </span>
+            </motion.button>
+          ))}
+        </motion.div>
       </section>
 
       <section className="hp-status-rail" aria-label="Protocol status">
@@ -856,7 +856,7 @@ export default function HoodPackzPage() {
             <a href="https://x.com/pakydotfun" target="_blank" rel="noreferrer">Community on X <ArrowUpRight size={18} /></a>
           </nav>
         </div>
-        <div className="hp-footer-word" aria-hidden="true">PAXZ</div>
+        <div className="hp-footer-word" aria-hidden="true">PAXZ.FUN</div>
         <div className="hp-footer-base">
           <p />
           <p>ROBINHOOD CHAIN / 4663 / BETA</p>

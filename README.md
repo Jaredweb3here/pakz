@@ -2,7 +2,7 @@
 
 **Onchain token packs. Three funded rewards per pull. Simple beta settlement.**
 
-[![Mainnet](https://img.shields.io/badge/mainnet-LIVE-2e7d32?style=flat-square&logo=ethereum)](https://pakz.fun)
+[![Mainnet](https://img.shields.io/badge/mainnet-LIVE-2e7d32?style=flat-square&logo=ethereum)](https://paxz.fun)
 [![Chain](https://img.shields.io/badge/Robinhood_Chain-4663-1565c0?style=flat-square)](https://robinhoodchain.blockscout.com)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Forge Tests](https://img.shields.io/badge/forge-passing-brightgreen?style=flat-square)](contracts/)
@@ -17,7 +17,7 @@
 
 You pay USDG. You get three real ERC-20 meme tokens from a seven-asset pool. The beta fixes a future Robinhood block when the purchase is created and derives the draw from that block hash. Anyone can finalize the draw after the block exists. Every possible prize is reserved before payment and every dollar follows a published split.
 
-**[Open the live mainnet app at pakz.fun](https://pakz.fun)**
+**[Open the live mainnet app at paxz.fun](https://paxz.fun)**
 
 Pack sales remain fail-closed until the simplified coordinator and replacement core are deployed, funded, audited, and proven with one real end-to-end opening. See the [mainnet status report](docs/15-mainnet-status.md).
 
