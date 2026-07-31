@@ -25,7 +25,7 @@ export const GETPACK_TOKENS: GetPackToken[] = [
     name: "Ethereum on Solana",
     address: "7vfCXTUXxNiyY1g5gTts2yY2Kf4XR3hqqnz9TQ9p8W8",
     decimals: 8,
-    logo: "/globe.svg",
+    logo: "/getpack-eth.svg",
     color: "#8b8cff",
     note: "Wormhole ETH-style reward slot.",
     priceUsd: 3200,

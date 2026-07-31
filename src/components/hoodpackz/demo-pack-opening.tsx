@@ -194,7 +194,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
             <header className="hp-demo-head">
               <div>
                 <span>GETPACK REVEAL / NO WALLET</span>
-                <strong id="demo-opening-title">{pack.name.toUpperCase()} PACK</strong>
+                <strong id="demo-opening-title">{pack.name.toUpperCase()}</strong>
               </div>
               <button type="button" onClick={onClose} aria-label="Close preview opening">
                 <X size={18} />

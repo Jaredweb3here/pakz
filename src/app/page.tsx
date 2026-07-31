@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState, type CSSProperties } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ArrowDown, ArrowUpRight, ChevronDown, Dices, ExternalLink, Wallet } from "lucide-react";
 import { HoodPackzBrand } from "@/components/brand/hoodpackz-brand";
 import { LivingWordmark } from "@/components/getpack/living-wordmark";
@@ -116,21 +116,16 @@ function SolWalletButton() {
 }
 
 export default function GetPackPage() {
-  const [tierIndex, setTierIndex] = useState(0);
-  const [tokenIndex, setTokenIndex] = useState(0);
+  const [previewTierIndex, setPreviewTierIndex] = useState(0);
   const [demoOpen, setDemoOpen] = useState(false);
   const reducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const heroCaptionY = useTransform(scrollYProgress, [0, 0.16], [0, reducedMotion ? 0 : 52]);
-  const tier = TIERS[tierIndex];
-  const token = GETPACK_TOKENS[tokenIndex];
+  const previewTier = TIERS[previewTierIndex];
 
-  function selectTierByKey(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-    event.preventDefault();
-    const next = (index + (event.key === "ArrowRight" ? 1 : -1) + TIERS.length) % TIERS.length;
-    setTierIndex(next);
-    document.getElementById(`gp-tier-${next}`)?.focus();
+  function openPreview(index: number) {
+    setPreviewTierIndex(index);
+    setDemoOpen(true);
   }
 
   return (
@@ -151,6 +146,27 @@ export default function GetPackPage() {
         <div id="gp-title" className="gp-title-label">GetPack</div>
         <LivingWordmark />
 
+        <div className="gp-hero-products" aria-label="Pulse, Signal, and Current GetPack packs">
+          {TIERS.map((option, index) => (
+            <motion.figure
+              key={option.name}
+              className={`gp-hero-pack gp-hero-pack-${index + 1}`}
+              initial={reducedMotion ? false : { opacity: 0, y: 70, rotate: 0 }}
+              animate={{ opacity: 1, y: 0, rotate: index === 0 ? -10 : index === 2 ? 10 : 0 }}
+              transition={{ duration: 1, delay: 0.18 + index * 0.11, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Image src={option.image} alt={`${option.name} pack`} width={1024} height={1536} priority sizes="(max-width: 760px) 31vw, 16vw" />
+              <figcaption>0{index + 1} {option.label}</figcaption>
+            </motion.figure>
+          ))}
+        </div>
+
+        <div className="gp-hero-proof" aria-label="GetPack product summary">
+          <span><strong>03</strong> packs</span>
+          <span><strong>04</strong> assets</span>
+          <span><strong>03</strong> pulls</span>
+        </div>
+
         <div className="gp-hero-caption-anchor">
           <motion.div className="gp-hero-caption" style={{ y: heroCaptionY }}>
             <span><i /> staging on Solana</span>
@@ -162,128 +178,50 @@ export default function GetPackPage() {
 
       <section id="packs" className="gp-packs" aria-labelledby="packs-title">
         <div className="gp-section-line"><span>01 / PACKS</span><span>THREE FREQUENCIES</span></div>
-        <div className="gp-pack-scene">
-          <div className="gp-scene-word">
-            <AnimatePresence mode="wait">
-              <motion.h2
-                id="packs-title"
-                key={tier.label}
-                initial={reducedMotion ? false : { opacity: 0, x: -80 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={reducedMotion ? undefined : { opacity: 0, x: 80 }}
-                transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {tier.label}
-              </motion.h2>
-            </AnimatePresence>
-          </div>
-
-          <motion.div className="gp-pack-intro" {...reveal(reducedMotion)}>
-            <span>One pack / three pulls</span>
-            <p>Select a frequency. Preview the reveal now; settlement opens after the public Solana program and reserve vault.</p>
-          </motion.div>
-
-          <div className="gp-tier-rail" role="radiogroup" aria-label="Choose a GetPack tier">
-            {TIERS.map((option, index) => (
-              <button
-                id={`gp-tier-${index}`}
-                key={option.name}
-                type="button"
-                role="radio"
-                aria-checked={tierIndex === index}
-                tabIndex={tierIndex === index ? 0 : -1}
-                className={tierIndex === index ? "active" : ""}
-                onClick={() => setTierIndex(index)}
-                onKeyDown={(event) => selectTierByKey(event, index)}
-              >
-                <span>0{index + 1}</span> {option.label} <small>{formatSol(option.priceSol)}</small>
-              </button>
-            ))}
-          </div>
-
-          <div className="gp-pack-stage">
-            <AnimatePresence mode="wait">
-              <motion.figure
-                key={tier.name}
-                initial={reducedMotion ? false : { opacity: 0, rotate: -4, y: 30, scale: 0.94 }}
-                animate={{ opacity: 1, rotate: 2, y: 0, scale: 1 }}
-                exit={reducedMotion ? undefined : { opacity: 0, rotate: 5, y: -24, scale: 0.96 }}
-                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <Image src={tier.image} alt={`${tier.name} GetPack pack`} width={1024} height={1536} priority sizes="(max-width: 760px) 72vw, 38vw" />
-              </motion.figure>
-            </AnimatePresence>
-            <span className="gp-orbit gp-orbit-one" aria-hidden="true" />
-          </div>
-
-          <div className="gp-pack-meta-anchor">
-            <motion.div className="gp-pack-meta" {...reveal(reducedMotion, 0.08)}>
-              <div><span>Selected</span><strong>{tier.name}</strong></div>
-              <div><span>Entry</span><strong>{formatSol(tier.priceSol)}</strong></div>
-              <p>{tier.note}</p>
-              <button type="button" onClick={() => setDemoOpen(true)}><Dices size={16} /> Open preview</button>
-              <small>Live settlement is not enabled.</small>
-            </motion.div>
-          </div>
+        <motion.div className="gp-collection-intro" {...reveal(reducedMotion)}>
+          <h2 id="packs-title">All packs.<br />No hidden tiers.</h2>
+          <p>Every frequency is on the floor. Each pack previews three pulls from the GetPack reserve.</p>
+        </motion.div>
+        <div className="gp-pack-collection">
+          {TIERS.map((option, index) => (
+            <motion.article key={option.name} className="gp-pack-card" {...reveal(reducedMotion, index * 0.08)}>
+              <header><span>0{index + 1} / {option.label}</span><strong>{formatSol(option.priceSol)}</strong></header>
+              <figure>
+                <span aria-hidden="true">{option.label}</span>
+                <Image src={option.image} alt={`${option.name} GetPack pack`} width={1024} height={1536} sizes="(max-width: 760px) 76vw, 29vw" />
+              </figure>
+              <div className="gp-pack-card-copy">
+                <h3>{option.name}</h3>
+                <p>{option.note}</p>
+                <button type="button" onClick={() => openPreview(index)}><Dices size={15} /> Open {option.label.toLowerCase()} preview</button>
+                <small>Live settlement is not enabled.</small>
+              </div>
+            </motion.article>
+          ))}
         </div>
       </section>
 
       <section id="pool" className="gp-pool" aria-labelledby="pool-title">
         <div className="gp-section-line"><span>02 / RESERVE</span><span>FOUR SOLANA ASSETS</span></div>
-        <div className="gp-token-scene">
-          <div className="gp-scene-word">
-            <AnimatePresence mode="wait">
-              <motion.h2
-                id="pool-title"
-                key={token.ticker}
-                initial={reducedMotion ? false : { opacity: 0, y: 64 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reducedMotion ? undefined : { opacity: 0, y: -64 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {token.ticker}
-              </motion.h2>
-            </AnimatePresence>
-          </div>
-
-          <div className="gp-token-focus-anchor">
-            <AnimatePresence mode="wait">
-              <motion.div
-                className="gp-token-focus"
-                key={token.address}
-                initial={reducedMotion ? false : { opacity: 0, scale: 0.88, rotate: -7 }}
-                animate={{ opacity: 1, scale: 1, rotate: 3 }}
-                exit={reducedMotion ? undefined : { opacity: 0, scale: 0.92, rotate: 8 }}
-                transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <Image src={token.logo} alt={`${token.name} logo`} width={520} height={520} />
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <div className="gp-token-detail-anchor">
-            <motion.div className="gp-token-detail" {...reveal(reducedMotion)}>
-              <span>Reserve asset 0{tokenIndex + 1}</span>
-              <strong>{token.name}</strong>
-              <code>{shortAddress(token.address)}</code>
-              <a href={solanaExplorerUrl(token.address)} target="_blank" rel="noreferrer">View on Solscan <ExternalLink size={14} /></a>
-            </motion.div>
-          </div>
-
-          <div className="gp-token-rail" role="tablist" aria-label="GetPack reserve assets">
+        <motion.div className="gp-collection-intro gp-reserve-intro" {...reveal(reducedMotion)}>
+          <h2 id="pool-title">The reserve,<br />in full view.</h2>
+          <p>Four Solana assets. No tabs, no concealed inventory. Contract addresses link directly to Solscan.</p>
+        </motion.div>
+        <div className="gp-reserve-grid">
           {GETPACK_TOKENS.map((token, index) => (
-            <button
-              key={token.address}
-              type="button"
-              role="tab"
-              aria-selected={tokenIndex === index}
-              className={tokenIndex === index ? "active" : ""}
-              onClick={() => setTokenIndex(index)}
-            >
-              <span>0{index + 1}</span> {token.ticker}
-            </button>
+            <motion.article key={token.address} className="gp-reserve-card" {...reveal(reducedMotion, index * 0.07)}>
+              <header><span>Reserve asset 0{index + 1}</span><strong>{token.ticker}</strong></header>
+              <div className="gp-reserve-logo" style={{ "--token-color": token.color } as CSSProperties}>
+                <Image src={token.logo} alt={`${token.name} logo`} width={520} height={520} />
+              </div>
+              <div className="gp-reserve-copy">
+                <h3>{token.name}</h3>
+                <p>{token.note}</p>
+                <code title={token.address}>{shortAddress(token.address)}</code>
+                <a href={solanaExplorerUrl(token.address)} target="_blank" rel="noreferrer">View on Solscan <ExternalLink size={14} /></a>
+              </div>
+            </motion.article>
           ))}
-          </div>
         </div>
       </section>
 
@@ -324,7 +262,7 @@ export default function GetPackPage() {
         </div>
       </footer>
 
-      <DemoPackOpening open={demoOpen} pack={tier} onClose={() => setDemoOpen(false)} />
+      <DemoPackOpening open={demoOpen} pack={previewTier} onClose={() => setDemoOpen(false)} />
     </main>
   );
 }
