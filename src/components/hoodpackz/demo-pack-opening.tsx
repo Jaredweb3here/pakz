@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RotateCcw, X } from "lucide-react";
@@ -73,6 +73,7 @@ function drawDemoTokens() {
 }
 
 export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
+  const dialogRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<DemoPhase>("sealed");
   const [revealed, setRevealed] = useState(0);
@@ -126,14 +127,45 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
 
   useEffect(() => {
     if (!open) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    const previousOverflow = document.body.style.overflow;
+    const getFocusableElements = () => Array.from(
+      dialog?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? [],
+    );
+    const focusFrame = requestAnimationFrame(() => getFocusableElements()[0]?.focus());
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusableElements();
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = "";
+      cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
+      previouslyFocused?.focus();
     };
   }, [open, onClose]);
 
@@ -149,6 +181,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
           onMouseDown={(event) => event.target === event.currentTarget && onClose()}
         >
           <motion.section
+            ref={dialogRef}
             className={`hp-demo-modal phase-${phase}`}
             role="dialog"
             aria-modal="true"
