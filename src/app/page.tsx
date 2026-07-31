@@ -189,8 +189,8 @@ export default function GetPackPage() {
             OPEN THE PULSE.<br /><span>SOLANA PACKS.</span>
           </h1>
           <p>
-            GetPack is the Solana pack experience: connect a Solana wallet, preview a
-            three-token pull, and stage rewards around SOL, ETH, ANSEM, and JIMOTHY.
+            GetPack is the Solana pack desk: pick a pack tier, preview a three-token pull,
+            and stage rewards around SOL, ETH, ANSEM, and JIMOTHY before live settlement.
           </p>
           <div className="hp-pool-strip" aria-label="Four Solana assets in the GetPack pool">
             {GETPACK_TOKENS.map((token) => (
@@ -200,26 +200,18 @@ export default function GetPackPage() {
             ))}
             <small>4 SOLANA ASSETS</small>
           </div>
-          <div className="hp-trust-row">
-            <span><ShieldCheck size={15} /> SOLANA WALLET</span>
-            <span><Dices size={15} /> PACK PREVIEW</span>
-            <span><Radio size={15} /> PROGRAM NEXT</span>
-          </div>
         </motion.div>
 
-        <div className="hp-control-panel">
-          <div className="hp-panel-head">
-            <div>
-              <span>SELECT PACK</span>
-              <strong>GETPACK MENU</strong>
-            </div>
-            <span className="hp-series">SOL SERIES 01</span>
+        <aside className="hp-market-rail" aria-label="GetPack pack desk">
+          <div className="hp-rail-head">
+            <span>PACK DESK</span>
+            <strong>SOL SERIES 01</strong>
           </div>
-
-          <div className="hp-tier-control" role="radiogroup" aria-label="GetPack pack tier">
+          <div className="hp-tier-stack" role="radiogroup" aria-label="GetPack pack tier">
             {TIERS.map((option, index) => (
               <button
                 key={option.name}
+                id={`pack-tier-${index}`}
                 type="button"
                 role="radio"
                 aria-checked={tierIndex === index}
@@ -229,12 +221,62 @@ export default function GetPackPage() {
                 onKeyDown={(event) => selectTierByKey(event, index)}
               >
                 <span>{option.label}</span>
-                <strong>{formatSol(option.priceSol)}</strong>
-                <small>{option.name}</small>
+                <strong>{option.name}</strong>
+                <small>{formatSol(option.priceSol)}</small>
               </button>
             ))}
           </div>
+          <div className="hp-market-metrics">
+            <div><span>POOL</span><strong>4 ASSETS</strong></div>
+            <div><span>MODE</span><strong>PREVIEW</strong></div>
+            <div><span>CHAIN</span><strong>SOLANA</strong></div>
+          </div>
+        </aside>
 
+        <motion.div
+          className="hp-pack-gallery"
+          style={{ y: heroPackY }}
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.9, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          aria-label="GetPack pack display"
+        >
+          {TIERS.map((option, index) => (
+            <motion.button
+              key={option.name}
+              type="button"
+              aria-pressed={tierIndex === index}
+              className={`hp-pack-card ${tierIndex === index ? "active" : ""}`}
+              onClick={() => selectTier(index)}
+              onKeyDown={(event) => selectTierByKey(event, index)}
+              whileHover={prefersReducedMotion ? undefined : { y: -12 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
+              transition={{ type: "spring", stiffness: 240, damping: 24 }}
+            >
+              <span className="hp-pack-card-index">GETPACK.FUN / {option.label}</span>
+              <span className={`hp-pack-card-art ${index === 0 ? "hp-pack-card-art-square" : ""}`}>
+                <Image
+                  src={option.image}
+                  alt={`${option.name} GetPack pack`}
+                  width={index === 0 ? 1254 : 1024}
+                  height={index === 0 ? 1254 : 1536}
+                  priority={index === 0}
+                  sizes="(max-width: 760px) 78vw, (max-width: 1100px) 32vw, 27vw"
+                />
+              </span>
+              <span className="hp-pack-card-meta">
+                <span><strong>{option.name}</strong><small>{option.note}</small></span>
+                <b>{formatSol(option.priceSol)}</b>
+              </span>
+            </motion.button>
+          ))}
+        </motion.div>
+
+        <aside className="hp-reserve-panel" aria-label="GetPack reserve pool">
+          <div className="hp-rail-head">
+            <span>RESERVE POOL</span>
+            <strong>ACTIVE LIST</strong>
+          </div>
           <div className="hp-pull-list">
             <div className="hp-pull-title">
               <span>REWARD POOL</span>
@@ -262,6 +304,22 @@ export default function GetPackPage() {
               </div>
             ))}
           </div>
+        </aside>
+
+        <div className="hp-control-panel">
+          <div className="hp-panel-head">
+            <div>
+              <span>SELECTED PACK</span>
+              <strong>{tier.name}</strong>
+            </div>
+            <span className="hp-series">{tier.label}</span>
+          </div>
+
+          <div className="hp-selected-pack">
+            <span>ENTRY</span>
+            <strong>{formatSol(tier.priceSol)}</strong>
+            <p>{tier.note}</p>
+          </div>
 
           <div className="hp-total">
             <span>PACK PRICE</span>
@@ -279,48 +337,11 @@ export default function GetPackPage() {
           </p>
         </div>
 
-        <motion.div
-          className="hp-pack-gallery"
-          style={{ y: heroPackY }}
-          initial={prefersReducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.9, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-          role="radiogroup"
-          aria-label="Choose a GetPack pack"
-        >
-          {TIERS.map((option, index) => (
-            <motion.button
-              id={`pack-tier-${index}`}
-              key={option.name}
-              type="button"
-              role="radio"
-              aria-checked={tierIndex === index}
-              tabIndex={tierIndex === index ? 0 : -1}
-              className={`hp-pack-card ${tierIndex === index ? "active" : ""}`}
-              onClick={() => selectTier(index)}
-              onKeyDown={(event) => selectTierByKey(event, index)}
-              whileHover={prefersReducedMotion ? undefined : { y: -12 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
-              transition={{ type: "spring", stiffness: 240, damping: 24 }}
-            >
-              <span className="hp-pack-card-index">GETPACK.FUN / {option.label}</span>
-              <span className={`hp-pack-card-art ${index === 0 ? "hp-pack-card-art-square" : ""}`}>
-                <Image
-                  src={option.image}
-                  alt={`${option.name} GetPack pack`}
-                  width={index === 0 ? 1254 : 1024}
-                  height={index === 0 ? 1254 : 1536}
-                  priority={index === 0}
-                  sizes="(max-width: 760px) 78vw, (max-width: 1100px) 32vw, 27vw"
-                />
-              </span>
-              <span className="hp-pack-card-meta">
-                <span><strong>{option.name}</strong><small>{option.note}</small></span>
-                <b>{formatSol(option.priceSol)}</b>
-              </span>
-            </motion.button>
-          ))}
-        </motion.div>
+        <div className="hp-trust-row hp-workbench-trust">
+          <span><ShieldCheck size={15} /> SOLANA WALLET</span>
+          <span><Dices size={15} /> PACK PREVIEW</span>
+          <span><Radio size={15} /> PROGRAM NEXT</span>
+        </div>
       </section>
 
       <section className="hp-status-rail" aria-label="GetPack status">
