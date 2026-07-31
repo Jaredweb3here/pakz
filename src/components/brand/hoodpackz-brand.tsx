@@ -8,11 +8,11 @@ interface HoodPackzBrandProps {
 
 export function HoodPackzBrand({ href = "/", compact = false }: HoodPackzBrandProps) {
   return (
-    <Link href={href} className="hp-brand" aria-label="Paxz home">
+    <Link href={href} className="hp-brand" aria-label="Pulsy home">
       <span className="hp-brand-mark" aria-hidden="true">
         <Image src="/lopa.png" alt="" width={38} height={38} priority />
       </span>
-      {!compact && <span>PAXZ</span>}
+      {!compact && <span>PULSY</span>}
     </Link>
   );
 }

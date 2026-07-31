@@ -15,21 +15,21 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "Paxz | Onchain Token Packs",
+  title: "Pulsy | Solana Token Packs",
   description:
-    "Open token packs from funded reserves on Robinhood Chain.",
+    "Solana token packs for SOL, ETH, Ansem, and Jimothy rewards.",
   icons: {
     icon: "/lopa.png",
     apple: "/lopa.png",
   },
   openGraph: {
-    title: "Paxz",
-    description: "Three-token packs from funded reserves on Robinhood Chain.",
+    title: "Pulsy",
+    description: "Solana token packs for SOL, ETH, Ansem, and Jimothy rewards.",
   },
   twitter: {
     card: "summary",
-    title: "Paxz",
-    description: "Three-token packs from funded reserves on Robinhood Chain.",
+    title: "Pulsy",
+    description: "Solana token packs for SOL, ETH, Ansem, and Jimothy rewards.",
   },
 };
 

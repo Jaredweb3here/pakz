@@ -4,8 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RotateCcw, X } from "lucide-react";
-import { HOODPACKZ_TOKENS, PUBLIC_TOKEN_PRICE_USD_BY_TICKER } from "@/lib/hoodpackz-tokens";
-import { useLiveTokenPrices } from "@/lib/use-live-token-prices";
+import { PULSY_TOKENS } from "@/lib/pulsy-tokens";
 
 type DemoPhase = "sealed" | "tearing" | "shuffling" | "revealing" | "result";
 const DEMO_VALUE_MULTIPLIER = 1.4;
@@ -63,7 +62,7 @@ interface DemoPackOpeningProps {
 }
 
 function drawDemoTokens() {
-  const pool = [...HOODPACKZ_TOKENS];
+  const pool = [...PULSY_TOKENS];
   for (let index = pool.length - 1; index > 0; index -= 1) {
     const random = new Uint32Array(1);
     crypto.getRandomValues(random);
@@ -78,14 +77,11 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
   const [phase, setPhase] = useState<DemoPhase>("sealed");
   const [revealed, setRevealed] = useState(0);
   const [run, setRun] = useState(0);
-  const [tokens, setTokens] = useState(() => HOODPACKZ_TOKENS.slice(0, 3));
+  const [tokens, setTokens] = useState(() => PULSY_TOKENS.slice(0, 3));
   const [decision, setDecision] = useState<"keep" | "sell" | null>(null);
-  const livePrices = useLiveTokenPrices();
   const targetTotal = pack.price * DEMO_VALUE_MULTIPLIER;
   const pulls = tokens.map((token, index) => {
-    const unitPrice = livePrices.get(token.address.toLowerCase())?.priceUsd
-      ?? PUBLIC_TOKEN_PRICE_USD_BY_TICKER[token.ticker.toUpperCase()]
-      ?? null;
+    const unitPrice = token.priceUsd;
     const amount = unitPrice == null ? null : roundDemoAmount((targetTotal * DEMO_PULL_WEIGHTS[index]) / unitPrice);
     return {
       amount,
@@ -164,7 +160,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
           >
             <header className="hp-demo-head">
               <div>
-                <span>PACK REVEAL / NO WALLET</span>
+                <span>PULSY REVEAL / NO WALLET</span>
                 <strong id="demo-opening-title">{pack.name.toUpperCase()} PACK</strong>
               </div>
               <button type="button" onClick={onClose} aria-label="Close preview opening">
@@ -258,7 +254,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                           }
                         >
                           <div className="hp-demo-card-back">
-                            <span>PXZ</span>
+                <span>PLS</span>
                             <small>SEALED SLOT 0{index + 1}</small>
                           </div>
                           <div className="hp-demo-card-front" style={{ "--token-accent": token.color } as CSSProperties}>
@@ -266,7 +262,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                             {legendary && <span className="hp-demo-rarity">LEGENDARY / PSA 10</span>}
                             <span className="hp-demo-slab">
                               <strong>PSA</strong>
-                              <small>PAXZ CERTIFIED<br />ONCHAIN PULL</small>
+                              <small>PULSY CERTIFIED<br />SOLANA PULL</small>
                             </span>
                             <Image src={token.logo} alt="" width={112} height={112} />
                             <div>
