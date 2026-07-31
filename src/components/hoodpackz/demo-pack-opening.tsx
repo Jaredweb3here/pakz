@@ -4,7 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RotateCcw, X } from "lucide-react";
-import { PULSY_TOKENS } from "@/lib/pulsy-tokens";
+import { GETPACK_TOKENS } from "@/lib/getpack-tokens";
 
 type DemoPhase = "sealed" | "tearing" | "shuffling" | "revealing" | "result";
 const DEMO_VALUE_MULTIPLIER = 1.4;
@@ -62,7 +62,7 @@ interface DemoPackOpeningProps {
 }
 
 function drawDemoTokens() {
-  const pool = [...PULSY_TOKENS];
+  const pool = [...GETPACK_TOKENS];
   for (let index = pool.length - 1; index > 0; index -= 1) {
     const random = new Uint32Array(1);
     crypto.getRandomValues(random);
@@ -77,7 +77,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
   const [phase, setPhase] = useState<DemoPhase>("sealed");
   const [revealed, setRevealed] = useState(0);
   const [run, setRun] = useState(0);
-  const [tokens, setTokens] = useState(() => PULSY_TOKENS.slice(0, 3));
+  const [tokens, setTokens] = useState(() => GETPACK_TOKENS.slice(0, 3));
   const [decision, setDecision] = useState<"keep" | "sell" | null>(null);
   const targetTotal = pack.price * DEMO_VALUE_MULTIPLIER;
   const pulls = tokens.map((token, index) => {
@@ -160,7 +160,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
           >
             <header className="hp-demo-head">
               <div>
-                <span>PULSY REVEAL / NO WALLET</span>
+                <span>GETPACK REVEAL / NO WALLET</span>
                 <strong id="demo-opening-title">{pack.name.toUpperCase()} PACK</strong>
               </div>
               <button type="button" onClick={onClose} aria-label="Close preview opening">
@@ -254,7 +254,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                           }
                         >
                           <div className="hp-demo-card-back">
-                <span>PLS</span>
+                <span>GPK</span>
                             <small>SEALED SLOT 0{index + 1}</small>
                           </div>
                           <div className="hp-demo-card-front" style={{ "--token-accent": token.color } as CSSProperties}>
@@ -262,7 +262,7 @@ export function DemoPackOpening({ open, pack, onClose }: DemoPackOpeningProps) {
                             {legendary && <span className="hp-demo-rarity">LEGENDARY / PSA 10</span>}
                             <span className="hp-demo-slab">
                               <strong>PSA</strong>
-                              <small>PULSY CERTIFIED<br />SOLANA PULL</small>
+                              <small>GETPACK CERTIFIED<br />SOLANA PULL</small>
                             </span>
                             <Image src={token.logo} alt="" width={112} height={112} />
                             <div>

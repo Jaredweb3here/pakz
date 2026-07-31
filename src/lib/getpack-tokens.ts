@@ -1,4 +1,4 @@
-export interface PulsyToken {
+export interface GetPackToken {
   ticker: string;
   name: string;
   address: string;
@@ -9,13 +9,13 @@ export interface PulsyToken {
   priceUsd: number;
 }
 
-export const PULSY_TOKENS: PulsyToken[] = [
+export const GETPACK_TOKENS: GetPackToken[] = [
   {
     ticker: "SOL",
     name: "Solana",
     address: "So11111111111111111111111111111111111111112",
     decimals: 9,
-    logo: "/pulsy-sol.png",
+    logo: "/getpack-sol.png",
     color: "#14f195",
     note: "Native Solana reserve asset.",
     priceUsd: 180,
@@ -35,7 +35,7 @@ export const PULSY_TOKENS: PulsyToken[] = [
     name: "Ansem",
     address: "9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump",
     decimals: 6,
-    logo: "/pulsy-ansem.png",
+    logo: "/getpack-ansem.png",
     color: "#ff7a18",
     note: "Pump.fun culture coin.",
     priceUsd: 0.012,
@@ -45,7 +45,7 @@ export const PULSY_TOKENS: PulsyToken[] = [
     name: "Jimothy",
     address: "Ge87EtsjwRQbHaqQmKRno69RFTwh9bfSsm99XNxTpump",
     decimals: 6,
-    logo: "/pulsy-jim.png",
+    logo: "/getpack-jim.png",
     color: "#d9ff5a",
     note: "Pump.fun meme reward.",
     priceUsd: 0.008,

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "Pulsy | Solana Token Packs",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://getpack.fun"),
+  title: "GetPack | Solana Token Packs",
   description:
     "Solana token packs for SOL, ETH, Ansem, and Jimothy rewards.",
   icons: {
@@ -23,12 +23,12 @@ export const metadata: Metadata = {
     apple: "/lopa.png",
   },
   openGraph: {
-    title: "Pulsy",
+    title: "GetPack",
     description: "Solana token packs for SOL, ETH, Ansem, and Jimothy rewards.",
   },
   twitter: {
     card: "summary",
-    title: "Pulsy",
+    title: "GetPack",
     description: "Solana token packs for SOL, ETH, Ansem, and Jimothy rewards.",
   },
 };

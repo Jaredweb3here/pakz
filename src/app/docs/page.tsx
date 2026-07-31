@@ -4,17 +4,17 @@ import { ArrowLeft, Check, Clock3, LockKeyhole, ShieldCheck } from "lucide-react
 import { HoodPackzBrand } from "@/components/brand/hoodpackz-brand";
 
 export const metadata: Metadata = {
-  title: "Protocol Status | Paxz",
-  description: "Paxz protocol notes, reserve model, economics, and deployment status.",
+  title: "Protocol Status | GetPack",
+  description: "GetPack protocol notes, reserve model, economics, and deployment status.",
 };
 
 const STATUS = [
-  { name: "Future-block draw", state: "Live", ready: true },
-  { name: "Permissionless reveal", state: "Live", ready: true },
-  { name: "Refund after expired entropy", state: "Live", ready: true },
-  { name: "Trencher reserve", state: "Live", ready: true },
-  { name: "Cashcat Max reserve", state: "Locked", ready: false },
-  { name: "Techpro reserve", state: "Locked", ready: false },
+  { name: "Solana wallet connect", state: "Ready", ready: true },
+  { name: "Pack preview", state: "Ready", ready: true },
+  { name: "SOL reserve", state: "Staged", ready: true },
+  { name: "ANSEM reserve", state: "Staged", ready: true },
+  { name: "Solana program", state: "Pending", ready: false },
+  { name: "Vault addresses", state: "Pending", ready: false },
   { name: "External audit review", state: "Ongoing", ready: false },
 ] as const;
 
@@ -29,11 +29,11 @@ export default function DocsPage() {
       <section className="hp-docs-hero">
         <div>
           <span className="hp-section-label">PROTOCOL STATUS</span>
-          <h1>LIVE PACKS.<br />PUBLIC RULES.</h1>
+          <h1>SOLANA PACKS.<br />PUBLIC STATUS.</h1>
         </div>
         <p>
-          Paxz uses a fixed future Robinhood block hash with permissionless reveal.
-          Only funded packs can open; locked packs stay closed until their reserves are ready.
+          GetPack connects Solana wallets and previews token pulls. Live SOL payments and reward
+          settlement stay disabled until the Solana program and vaults are deployed.
         </p>
       </section>
 
@@ -52,16 +52,16 @@ export default function DocsPage() {
         <aside className="hp-docs-callout">
           <LockKeyhole size={28} />
           <span>MAINNET ACTIONS</span>
-          <strong>LIVE</strong>
-          <p>Openings are wallet-submitted, non-custodial, and settled by the deployed beta contracts.</p>
+          <strong>STAGING</strong>
+          <p>Openings become wallet-submitted and non-custodial after the deployed Solana program is configured.</p>
         </aside>
       </section>
 
       <section className="hp-docs-spec">
-        <div><span>PACKS</span><strong>5 / 15 / 50 USDG</strong><p>Each opening resolves to three different reward tokens.</p></div>
-        <div><span>ECONOMICS</span><strong>80 / 10 / 10</strong><p>Reward reserve, USDG jackpot, and protocol operations.</p></div>
-        <div><span>DRAW</span><strong>FUTURE BLOCK</strong><p>The target block is fixed before its hash exists.</p></div>
-        <div><span>RECOVERY</span><strong>FULL REFUND</strong><p>Expired entropy unlocks reserve inventory and returns the purchase price.</p></div>
+        <div><span>PACKS</span><strong>0.1 / 0.25 / 0.6 SOL</strong><p>Each preview resolves to three different reward tokens.</p></div>
+        <div><span>ECONOMICS</span><strong>80 / 10 / 10</strong><p>Reward reserve, SOL jackpot, and protocol operations.</p></div>
+        <div><span>PROGRAM</span><strong>PENDING</strong><p>The live opening program address will be published after deployment.</p></div>
+        <div><span>RESERVES</span><strong>SOL / ETH / MEMES</strong><p>Reserve vaults cover SOL, ETH, ANSEM, and JIMOTHY rewards.</p></div>
       </section>
 
       <section className="hp-docs-principles">
@@ -70,17 +70,17 @@ export default function DocsPage() {
           <h2>WHAT EVERY<br />OPENING CHECKS.</h2>
         </div>
         <ul>
-          <li><ShieldCheck size={18} /><span>The target future block is committed when the opening is created.</span></li>
-          <li><ShieldCheck size={18} /><span>Rewards are pre-funded and checked before a pack can accept payment.</span></li>
-          <li><ShieldCheck size={18} /><span>Locked tiers stay closed until every possible result is backed.</span></li>
-          <li><ShieldCheck size={18} /><span>If the draw expires, the user can recover the full purchase price.</span></li>
+          <li><ShieldCheck size={18} /><span>The public UI must not accept SOL until the program address is configured.</span></li>
+          <li><ShieldCheck size={18} /><span>Rewards need funded vaults before a pack can accept payment.</span></li>
+          <li><ShieldCheck size={18} /><span>Preview mode moves no funds and creates no onchain opening.</span></li>
+          <li><ShieldCheck size={18} /><span>Program, vault, and audit status must stay visible before launch.</span></li>
         </ul>
       </section>
 
       <footer className="hp-footer hp-docs-footer">
         <HoodPackzBrand />
-        <p>PROTOCOL STATUS AND TEST NOTES</p>
-        <span>ROBINHOOD CHAIN / 4663</span>
+        <p>GETPACK STATUS AND TEST NOTES</p>
+        <span>SOLANA / PREVIEW</span>
       </footer>
     </main>
   );

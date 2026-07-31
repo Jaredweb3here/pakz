@@ -1,4 +1,4 @@
-# Pulsy
+# GetPack
 
 **Solana token packs for SOL, ETH, Ansem, and Jimothy rewards.**
 
@@ -6,17 +6,15 @@
 [![Explorer](https://img.shields.io/badge/explorer-Solscan-9945ff?style=flat-square)](https://solscan.io)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
-**X:** [@getpulsy_fun](https://x.com/getpulsy_fun)
+**Site:** [getpack.fun](https://getpack.fun)
 
 ---
 
-## What is Pulsy
+## What is GetPack
 
-Pulsy is the Solana version of the pack interface. The previous Paxz Robinhood Chain frontend is preserved on the archive branch:
+GetPack is the Solana pack interface for token rewards.
 
-`archive/paxz-before-pulsy`
-
-Pulsy currently ships the Solana-facing frontend, Solana wallet connect UI, and pack preview flow. Live SOL payment and reward settlement should be enabled after the Solana program and reserve vault addresses are deployed.
+GetPack currently ships the Solana-facing frontend, Solana wallet connect UI, and pack preview flow. Live SOL payment and reward settlement should be enabled after the Solana program and reserve vault addresses are deployed.
 
 ---
 
@@ -33,4 +31,4 @@ Pulsy currently ships the Solana-facing frontend, Solana wallet connect UI, and 
 
 ## Launch state
 
-The public frontend is migrated to Solana and uses browser Solana wallet injection, such as Phantom. Real openings remain disabled until the Pulsy Solana program is deployed and configured.
+The public frontend is migrated to Solana and uses browser Solana wallet injection, such as Phantom. Real openings remain disabled until the GetPack Solana program is deployed and configured.
